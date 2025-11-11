@@ -1,0 +1,6 @@
+:root {
+  --bg: #f6f8fb;
+  --text: #0f1720;
+}
+html,body,#root{height:100%;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter, system-ui, Arial;}

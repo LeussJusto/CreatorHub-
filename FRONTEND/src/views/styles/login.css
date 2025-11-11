@@ -1,0 +1,58 @@
+/* styles for LoginView */
+.login-root{
+  display:flex;
+  min-height:100vh;
+  gap:48px;
+  padding:48px;
+  box-sizing:border-box;
+  align-items:center;
+  justify-content:center;
+}
+.promo{
+  flex:1.2;
+  max-width:720px;
+}
+.promo-badge{
+  display:inline-block;
+  background: #f0f6ff;
+  color:#6b7cff;
+  padding:8px 12px;
+  border-radius:20px;
+  font-weight:600;
+  margin-bottom:18px;
+}
+.promo h1{
+  font-size:48px;
+  margin:0 0 12px 0;
+  line-height:1.05;
+}
+.promo .accent{ color:#7b2cff; }
+.promo-sub{ color:#556; font-size:16px; margin-bottom:18px; }
+.promo-features{ list-style:none; padding:0; margin:0; display:flex; gap:18px; color:#2c6; }
+
+.auth-card{
+  width:420px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.95), #fff);
+  box-shadow: 0 8px 30px rgba(16,24,40,0.12);
+  border-radius:12px;
+  padding:28px;
+}
+.auth-form{ display:flex; flex-direction:column; gap:12px; }
+.auth-icon{ width:48px; height:48px; background:linear-gradient(90deg,#b55bff,#ff4da6); color:white; display:flex; align-items:center; justify-content:center; border-radius:10px; font-size:22px; margin:0 auto; }
+.auth-form h2{ text-align:center; margin:8px 0 0 0 }
+.auth-sub{ text-align:center; color:#666; font-size:13px; margin-bottom:8px }
+.field{ display:flex; flex-direction:column; font-size:13px; }
+.field span{ margin-bottom:6px; color:#555 }
+.field input{ padding:10px 12px; border:1px solid #e6e9ef; border-radius:8px; background:#fbfbff }
+.cta{ margin-top:6px; padding:12px; border-radius:10px; border:0; color:white; font-weight:600; background: linear-gradient(90deg,#7b2cff,#ff2dac); cursor:pointer }
+.cta:disabled{ opacity:0.7; cursor:default }
+.auth-footer{ margin-top:8px; display:flex; flex-direction:column; gap:6px; align-items:center }
+.link{ color:#7b2cff; text-decoration:none; font-weight:600 }
+.error{ color:#a11; background:#fee; padding:8px; border-radius:8px; }
+.demo-note{ color:#999; font-size:12px }
+
+@media (max-width:900px){
+  .login-root{ flex-direction:column; padding:24px }
+  .promo{ order:2; text-align:center }
+  .auth-card{ order:1; width:100% }
+}

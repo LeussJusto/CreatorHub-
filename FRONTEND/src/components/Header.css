@@ -1,0 +1,17 @@
+.ch-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 28px;
+  border-bottom:1px solid #eef2f7;
+  background: #fff;
+}
+.ch-brand{ display:flex; gap:12px; align-items:center }
+.ch-logo{ width:44px; height:44px; background:linear-gradient(90deg,#b55bff,#ff4da6); color:white; display:flex; align-items:center; justify-content:center; border-radius:10px; font-weight:700 }
+.ch-title{ font-weight:700 }
+.ch-sub{ font-size:12px; color:#718096 }
+.ch-user{ display:flex; gap:12px; align-items:center }
+.ch-user-info{ text-align:right }
+.ch-user-name{ font-weight:600 }
+.ch-user-email{ font-size:12px; color:#718096 }
+.ch-user-avatar{ width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f3f4f6 }

@@ -1,0 +1,8 @@
+.ch-metric{
+  background:#fff; border-radius:10px; padding:16px; box-shadow: 0 4px 10px rgba(15,23,40,0.04);
+}
+.ch-metric-top{ display:flex; justify-content:space-between; align-items:center }
+.ch-metric-title{ color:#334155; font-size:13px }
+.ch-metric-icon{ font-size:18px }
+.ch-metric-value{ font-size:28px; font-weight:700; margin-top:8px }
+.ch-metric-delta{ color:#059669; font-size:13px; margin-top:6px }

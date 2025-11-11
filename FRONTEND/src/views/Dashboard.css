@@ -1,0 +1,13 @@
+.ch-dashboard-root{ min-height:100vh; background:#f8fafc; }
+.ch-dashboard-main{ padding:24px 28px; display:flex; flex-direction:column; gap:20px }
+.ch-metrics{ display:grid; grid-template-columns: repeat(3,1fr); gap:16px }
+.ch-projects{ margin-top:6px }
+.ch-projects-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px }
+.ch-sub{ color:#64748b }
+.ch-new-btn{ background:linear-gradient(90deg,#7b2cff,#ff2dac); color:white; padding:8px 14px; border-radius:10px; border:0 }
+.ch-projects-grid{ display:grid; grid-template-columns: repeat(3,1fr); gap:16px }
+
+@media (max-width:1000px){
+  .ch-metrics{ grid-template-columns: repeat(1,1fr) }
+  .ch-projects-grid{ grid-template-columns: repeat(1,1fr) }
+}

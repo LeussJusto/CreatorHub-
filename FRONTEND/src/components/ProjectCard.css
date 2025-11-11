@@ -1,0 +1,13 @@
+.ch-project-card{ background:#fff; border-radius:10px; padding:16px; box-shadow:0 6px 18px rgba(15,23,40,0.04); min-height:150px; display:flex; flex-direction:column; gap:12px }
+.ch-project-header{ display:flex; justify-content:space-between; align-items:center }
+.ch-project-title{ font-weight:700 }
+.ch-badge{ padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700 }
+.ch-badge-terminado{ background:#ecfdf5; color:#065f46 }
+.ch-badge-en-proceso{ background:#eff6ff; color:#1e40af }
+.ch-badge-no-iniciado{ background:#fff7ed; color:#92400e }
+.ch-project-desc{ color:#6b7280; font-size:14px }
+.ch-project-meta{ display:flex; justify-content:space-between; align-items:center; margin-top:auto }
+.ch-due{ color:#6b7280; font-size:13px }
+.ch-members{ display:flex; gap:6px; align-items:center }
+.ch-member{ background:#f3f4f6; padding:6px 8px; border-radius:999px; font-size:12px }
+.ch-more{ color:#94a3b8; font-size:12px }
