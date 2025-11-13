@@ -13,3 +13,42 @@
 .ch-small{color:#666}
 .ch-calendar-inner{height:220px;display:flex;align-items:center;justify-content:center;color:#999}
 .ch-calendar-list{display:flex;gap:12px}
+
+/* Modal styles for CreateEventModal */
+.ch-modal-overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.35);z-index:60}
+.ch-modal{width:640px;background:#fff;border-radius:10px;box-shadow:0 8px 30px rgba(0,0,0,0.15);padding:18px}
+.ch-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ch-modal-header h3{margin:0}
+.ch-close{background:transparent;border:0;font-size:20px;cursor:pointer}
+.ch-modal-body label{display:block;font-size:13px;color:#444;margin-bottom:6px}
+.ch-modal-body input[type="text"], .ch-modal-body input[type="date"], .ch-modal-body input[type="time"], .ch-modal-body textarea{width:100%;padding:10px;border:1px solid #e6e6e6;border-radius:8px;background:#fafafa}
+.ch-modal-body textarea{min-height:72px}
+.ch-modal-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.ch-btn{padding:8px 14px;border-radius:8px;border:0;cursor:pointer}
+.ch-btn-secondary{background:#fff;border:1px solid #e6e6e6}
+.ch-btn-primary{background:linear-gradient(90deg,#ff32a8,#7c3aed);color:#fff}
+
+/* Stat cards */
+.stat-card{flex:1;border:1px solid #f0f0f0;border-radius:10px;padding:18px;background:#fff;text-align:center}
+.stat-num{font-size:28px;color:#7c3aed;font-weight:600}
+.stat-label{font-size:13px;color:#666;margin-top:6px}
+
+/* Scripts (Guiones) view */
+.ch-scripts-container{display:flex;gap:16px}
+.ch-scripts-left{width:360px}
+.ch-scripts-right{flex:1}
+.script-list{display:flex;flex-direction:column;gap:10px}
+.script-card{background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:12px}
+.status-badge{padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600}
+.status-badge.en-revisión{background:#fff4e6;color:#b45309;border:1px solid #f5e0c3}
+.status-badge.borrador{background:#f3f4f6;color:#374151}
+.status-badge.aprobado{background:#ecfdf5;color:#065f46;border:1px solid #d1fae5}
+.empty-editor{display:flex;align-items:center;justify-content:center;height:320px}
+.ch-primary{background:linear-gradient(90deg,#ff32a8,#7c3aed);color:#fff;padding:8px 12px;border-radius:8px;border:0}
+
+/* Comments */
+.comments-list{display:flex;flex-direction:column;gap:10px}
+.comment-row{display:flex;gap:12px;padding:12px;background:#f8fbff;border-radius:8px}
+.comment-avatar{width:40px;height:40px;border-radius:20px;background:#cfe8ff;color:#034ea2;display:flex;align-items:center;justify-content:center;font-weight:700}
+.comment-body{flex:1}
+.comment-input{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e6e6}

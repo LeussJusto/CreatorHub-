@@ -2,13 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getJson } from '../services/api'
 import './ProjectView.css'
+import CreateEventModal from '../components/CreateEventModal'
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar'
-import format from 'date-fns/format'
-import parse from 'date-fns/parse'
-import startOfWeek from 'date-fns/startOfWeek'
-import getDay from 'date-fns/getDay'
-import addHours from 'date-fns/addHours'
-import es from 'date-fns/locale/es'
+import { format, parse, startOfWeek, getDay, addHours } from 'date-fns'
+import { es } from 'date-fns/locale'
 import 'react-big-calendar/lib/css/react-big-calendar.css'
 
 const locales = { 'es': es }
@@ -32,15 +29,65 @@ export default function ProjectView(){
     { id: 'e6', title: 'Sesión Fotos', desc: 'Instagram', date: '2025-10-30', time: '11:00' },
   ];
 
+  // Sample scripts for the 'Guiones' view
+  const sampleScripts = [
+    { id: 's1', title: 'TikTok - Trend Navideño #1', author: 'María García', comments: 2, status: 'En Revisión' },
+    { id: 's2', title: 'Instagram Reel - Tutorial Edición', author: 'Ana Martínez', comments: 0, status: 'Borrador' },
+    { id: 's3', title: 'YouTube - Video Semanal', author: 'Diego Ramírez', comments: 1, status: 'Aprobado' },
+  ]
+
+  // Details & comments per script (local mock)
+  const initialScriptDetails: Record<string, any> = {
+    s1: {
+      lastEditedBy: 'María García',
+      lastEditedAt: new Date(2025, 11, 13, 15, 30),
+      content: `# Guion TikTok - Trend Navideño
+
+## Concepto
+Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para Navidad"
+
+## Escenas
+1. **Intro (0-3s)**: Despertar con pijama de Santa
+2. **Desarrollo (3-10s)**: Revisando lista de regalos en tablet
+3. **Cierre (10-15s)**: Guión a cámara y texto "24 de diciembre here we go"
+
+## Audio
+- Canción: "Jingle Bell Rock" (versión trending)
+
+## Hashtags
+#NavidadTikTok #SantaClaus #Navidad2024`,
+      comments: [
+        { id: 'c1', author: 'Carlos López', text: 'Me gusta el concepto! Sugiero agregar un efecto de transición entre escenas', createdAt: new Date(2025,11,13,16,0) },
+        { id: 'c2', author: 'María García', text: 'Perfecto, lo grabaremos mañana en la mañana', createdAt: new Date(2025,11,13,16,15) },
+      ],
+    },
+    s2: {
+      lastEditedBy: 'Ana Martínez',
+      lastEditedAt: new Date(2025, 9, 1, 10, 0),
+      content: 'Guion para Instagram Reel - placeholder',
+      comments: [],
+    },
+    s3: {
+      lastEditedBy: 'Diego Ramírez',
+      lastEditedAt: new Date(2025, 9, 2, 11, 0),
+      content: 'Guion para YouTube - placeholder',
+      comments: [ { id: 'c3', author: 'Diego Ramírez', text: 'Listo para publicar', createdAt: new Date(2025,9,2,12,0) } ],
+    }
+  }
+
+  const [scriptDetails, setScriptDetails] = useState<Record<string, any>>(initialScriptDetails)
+  const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null)
+
   // Map static events to react-big-calendar events
-  const events = staticEvents.map(ev => {
+  const [eventsState, setEventsState] = useState(() => staticEvents.map(ev => {
     const [y, m, d] = ev.date.split('-').map(Number);
     const [hh, mm] = ev.time.split(':').map(Number);
     const start = new Date(y, m-1, d, hh, mm);
     const end = addHours(start, 1);
     return { id: ev.id, title: ev.title, start, end, desc: ev.desc }
-  })
-
+  }))
+  const events = eventsState
+  const [modalOpen, setModalOpen] = useState(false)
   const totalEvents = events.length
   const today = selectedDate ? new Date(selectedDate) : null
   const eventsToday = today ? events.filter(e => e.start.toISOString().slice(0,10) === today.toISOString().slice(0,10)) : []
@@ -101,7 +148,7 @@ export default function ProjectView(){
               <div>
                 <button className={viewMode==='month'?'active':''} onClick={()=>setViewMode('month')}>Mes</button>
                 <button className={viewMode==='list'?'active':''} onClick={()=>setViewMode('list')}>Lista</button>
-                <button className="ch-primary">+ Nuevo Evento</button>
+                <button className="ch-primary" onClick={()=>setModalOpen(true)}>+ Nuevo Evento</button>
               </div>
             </div>
 
@@ -212,6 +259,135 @@ export default function ProjectView(){
                 </div>
               </div>
             )}
+            {modalOpen && (
+              <CreateEventModal
+                onClose={() => setModalOpen(false)}
+                onCreate={(ev) => {
+                  // ev: { id, title, desc, start, end }
+                  const toAdd = { id: ev.id, title: ev.title, start: ev.start, end: ev.end || addHours(ev.start,1), desc: ev.desc || '' }
+                  setEventsState(s => [toAdd, ...s])
+                  setSelectedDate(ev.start)
+                }}
+              />
+            )}
+          </div>
+        )}
+
+        {tab === 'scripts' && (
+          <div>
+            <div className="ch-calendar-header">
+              <div>
+                <h3>Guiones del Proyecto</h3>
+                <div className="ch-small">Crea y edita guiones de forma colaborativa</div>
+              </div>
+              <div>
+                <button className="ch-primary">+ Nuevo Guion</button>
+              </div>
+            </div>
+
+            <div className="ch-scripts-container">
+              <div className="ch-scripts-left">
+                <div className="ch-box">
+                  <div style={{fontWeight:700,marginBottom:12}}>Todos los Guiones ({sampleScripts.length})</div>
+                  <div className="script-list">
+                    {sampleScripts.map(s => {
+                      const isSelected = selectedScriptId === s.id
+                      return (
+                        <div key={s.id} className={`script-card ${isSelected? 'selected':''}`} onClick={() => setSelectedScriptId(s.id)} style={{cursor:'pointer'}}>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                            <div style={{fontWeight:600}}>{s.title}</div>
+                            <div className={`status-badge ${s.status.replace(/\s+/g,'-').toLowerCase()}`}>{s.status}</div>
+                          </div>
+                          <div className="muted" style={{marginTop:6}}>{s.author} • {s.comments} comentarios</div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="ch-scripts-right">
+                <div className="ch-box">
+                  {selectedScriptId ? (
+                    (() => {
+                      const detail = scriptDetails[selectedScriptId]
+                      if(!detail) return <div className="muted">Guion no encontrado</div>
+                      return (
+                        <div>
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}>
+                            <div>
+                              <div style={{fontWeight:700,fontSize:18}}>{sampleScripts.find(s=>s.id===selectedScriptId)?.title}</div>
+                              <div className="muted">Última edición: {detail.lastEditedBy} • {detail.lastEditedAt.toLocaleString()}</div>
+                            </div>
+                            <div style={{display:'flex',gap:8}}>
+                              <button className="ch-btn ch-btn-secondary">Borrador</button>
+                              <button className="ch-btn ch-btn-secondary">En Revisión</button>
+                              <button className="ch-btn ch-btn-primary">Aprobar</button>
+                            </div>
+                          </div>
+
+                          <div style={{border:'1px solid #f0f0f0',borderRadius:8,background:'#fff',padding:12,marginBottom:8}}>
+                            <textarea value={detail.content} onChange={(e)=>{
+                              const val = e.target.value
+                              setScriptDetails(sd=>({ ...sd, [selectedScriptId]: { ...sd[selectedScriptId], content: val } }))
+                            }} style={{width:'100%',minHeight:220,border:'none',outline:'none',resize:'vertical'}} />
+                          </div>
+
+                          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                            <div className="muted">{(detail.content || '').length} caracteres</div>
+                            <div>
+                              <button className="ch-btn ch-btn-secondary" onClick={()=>{
+                                // revert: reload from initial
+                                setScriptDetails(sd=>({ ...sd, [selectedScriptId]: initialScriptDetails[selectedScriptId] }))
+                              }}>Revertir</button>
+                              <button className="ch-btn ch-btn-primary" style={{marginLeft:8}} onClick={()=>{
+                                // simulate save: update last edited
+                                setScriptDetails(sd=>({ ...sd, [selectedScriptId]: { ...sd[selectedScriptId], lastEditedAt: new Date() } }))
+                              }}>Guardar Cambios</button>
+                            </div>
+                          </div>
+
+                          <div style={{marginTop:18}}>
+                            <div style={{fontWeight:700,marginBottom:8}}>Comentarios ({(detail.comments||[]).length})</div>
+                            <div className="comments-list">
+                              {(detail.comments||[]).map((c:any)=> (
+                                <div key={c.id} className="comment-row">
+                                  <div className="comment-avatar">{c.author.split(' ').map((p:any)=>p[0]).slice(0,2).join('')}</div>
+                                  <div className="comment-body">
+                                    <div style={{display:'flex',justifyContent:'space-between'}}>
+                                      <div style={{fontWeight:600}}>{c.author}</div>
+                                      <div className="muted" style={{fontSize:12}}>{c.createdAt.toLocaleString()}</div>
+                                    </div>
+                                    <div style={{marginTop:6}}>{c.text}</div>
+                                  </div>
+                                </div>
+                              ))}
+
+                              <div style={{display:'flex',gap:8,marginTop:12}}>
+                                <input placeholder="Agregar un comentario..." className="comment-input" id="newCommentInput" />
+                                <button className="ch-btn ch-btn-primary" onClick={()=>{
+                                  const input = document.getElementById('newCommentInput') as HTMLInputElement
+                                  if(!input) return
+                                  const txt = input.value.trim(); if(!txt) return
+                                  const newC = { id: String(Date.now()), author: 'Tu Nombre', text: txt, createdAt: new Date() }
+                                  setScriptDetails(sd=>({ ...sd, [selectedScriptId]: { ...sd[selectedScriptId], comments: [ ...(sd[selectedScriptId].comments||[]), newC ] } }))
+                                  input.value = ''
+                                }}>Comentar</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()
+                  ) : (
+                    <div className="empty-editor" style={{textAlign:'center',paddingTop:36,paddingBottom:36}}>
+                      <div style={{fontSize:36,color:'#c9c9cf'}}>📄</div>
+                      <div className="muted" style={{marginTop:12}}>Selecciona un guion para editararlo</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
