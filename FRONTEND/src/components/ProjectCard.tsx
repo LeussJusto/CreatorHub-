@@ -10,9 +10,9 @@ type Project = {
   members?: string[];
 }
 
-export default function ProjectCard({ project }: { project: Project }){
+export default function ProjectCard({ project, onClick }: { project: Project, onClick?: ()=>void }){
   return (
-    <div className="ch-project-card">
+    <div className="ch-project-card" onClick={onClick} style={{cursor: onClick ? 'pointer' : 'default'}}>
       <div className="ch-project-header">
         <div className="ch-project-title">{project.title}</div>
         <div className={`ch-badge ch-badge-${project.status.toLowerCase().replace(/\s+/g,'-')}`}>{project.status}</div>

@@ -1,0 +1,12 @@
+.ch-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:50}
+.ch-modal{width:680px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+.ch-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.ch-modal-close{background:transparent;border:0;font-size:20px;cursor:pointer}
+.ch-modal-body label{display:block;font-size:13px;color:#444;margin-top:10px}
+.ch-modal-body input,.ch-modal-body textarea,.ch-modal-body select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;margin-top:6px}
+.ch-modal-body textarea{min-height:80px}
+.ch-platforms{display:flex;gap:10px;margin-top:8px}
+.ch-platforms label{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:8px;cursor:pointer}
+.ch-platforms label.active{border-color:#a78bfa;background:#fbf8ff}
+.ch-modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
+.ch-modal-footer .ch-primary{background:#7c3aed;color:#fff;padding:8px 14px;border-radius:8px;border:0}

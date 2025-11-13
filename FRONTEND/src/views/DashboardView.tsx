@@ -7,11 +7,17 @@ import IntegrationNotice from '../components/IntegrationNotice';
 import './Dashboard.css';
 import { fetchYoutubeMetrics } from '../services/integrations';
 import YouTubeMetricsCard from '../components/YouTubeMetricsCard';
+import CreateProjectModal from '../components/CreateProjectModal';
+import { getJson } from '../services/api';
+import { useNavigate } from 'react-router-dom';
 
 export default function DashboardView(){
   const { user, logout, token } = useAuth();
   const [loadingFetch, setLoadingFetch] = useState(false);
   const [youtubeResults, setYoutubeResults] = useState<any[] | null>(null);
+  const [showCreate, setShowCreate] = useState(false);
+  const [projects, setProjects] = useState<any[] | null>(null);
+  const navigate = useNavigate();
 
   const metrics = [
     { platform: 'Instagram', value: '45.2K', delta: '+1,200 seguidores este mes', icon: '📷' },
@@ -19,11 +25,19 @@ export default function DashboardView(){
     { platform: 'YouTube', value: '23.8K', delta: '+800 suscriptores este mes', icon: '▶️' },
   ];
 
-  const projects = [
-    { id: 'p1', title: 'YouTube - Serie Tutoriales', status: 'Terminado', description: 'Videos educativos sobre edición', due: '19 oct 2025', members: ['M1','M2','M3','M4'] },
-    { id: 'p2', title: 'Campaña TikTok Diciembre', status: 'En Proceso', description: 'Contenido navideño para aumentar engagement', due: '24 oct 2025', members: ['M1','M2','M3'] },
-    { id: 'p3', title: 'Instagram Stories Semanales', status: 'No Iniciado', description: 'Planificación de stories diarios', due: '29 nov 2025', members: ['M1','M2'] },
-  ];
+  // projects will be fetched from backend
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        const data = await getJson('/api/projects/mine', token ?? undefined);
+        setProjects(data || []);
+      } catch (err) {
+        console.error('fetch projects', err);
+        setProjects([]);
+      }
+    })();
+  }, [token]);
 
   return (
     <div className="ch-dashboard-root">
@@ -71,17 +85,30 @@ export default function DashboardView(){
               <div className="ch-sub">Gestiona y colabora en tus proyectos de contenido</div>
             </div>
             <div>
-              <button className="ch-new-btn">+ Nuevo Proyecto</button>
+              <button className="ch-new-btn" onClick={()=>setShowCreate(true)}>+ Nuevo Proyecto</button>
             </div>
           </div>
 
           <div className="ch-projects-grid">
-            {projects.map(p => (
-              <ProjectCard key={p.id} project={p} />
-            ))}
+            {(projects || []).map(p => {
+              const mapped = {
+                id: p._id,
+                title: p.name,
+                status: p.status === 'in_progress' ? 'En Proceso' : (p.status === 'completed' ? 'Terminado' : 'No Iniciado'),
+                description: p.description,
+                due: p.dueDate ? new Date(p.dueDate).toLocaleDateString() : undefined,
+                members: (p.members || []).map((m:any,i:number) => `M${i+1}`),
+              };
+              return <ProjectCard key={mapped.id} project={mapped} onClick={() => navigate(`/projects/${mapped.id}`)} />
+            })}
           </div>
         </section>
       </main>
+      {showCreate && <CreateProjectModal token={token ?? undefined} onClose={()=>setShowCreate(false)} onCreated={(p)=>{
+        // TODO: refresh projects list - currently we just close modal
+        console.log('created project', p);
+      }} />}
     </div>
   )
 }
+

@@ -6,11 +6,14 @@ const { emitToProject } = require('../utils/realtime');
 exports.createProject = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-  const { name, description } = req.body;
+  const { name, description, platforms, status, dueDate } = req.body;
   try {
     const project = await Project.create({
       name,
       description,
+      platforms: platforms || [],
+      status: status || 'not_started',
+      dueDate: dueDate ? new Date(dueDate) : undefined,
       members: [{ user: req.user.id, isLeader: true }],
     });
     emitToProject(project._id.toString(), 'project:updated', project);

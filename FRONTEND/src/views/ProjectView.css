@@ -1,0 +1,15 @@
+.ch-project-top{display:flex;align-items:center;gap:12px;padding:12px 0}
+.ch-project-top h2{margin:0}
+.ch-project-tabs{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid #eee;margin-bottom:12px}
+.ch-project-tabs button{padding:8px 12px;border-radius:999px;border:1px solid #eee;background:transparent}
+.ch-project-tabs button.active{background:#f3f4f6}
+.ch-calendar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.ch-calendar-grid{display:flex;gap:12px}
+.ch-calendar-box{flex:1;border:1px solid #eee;border-radius:8px;padding:12px;background:#fff}
+.ch-calendar-side{width:320px}
+.ch-box{border:1px solid #eee;border-radius:8px;padding:12px;background:#fff}
+.ch-primary{background:#7c3aed;color:#fff;padding:8px 12px;border-radius:8px;border:0}
+.muted{color:#888;font-size:13px;margin-top:8px}
+.ch-small{color:#666}
+.ch-calendar-inner{height:220px;display:flex;align-items:center;justify-content:center;color:#999}
+.ch-calendar-list{display:flex;gap:12px}
