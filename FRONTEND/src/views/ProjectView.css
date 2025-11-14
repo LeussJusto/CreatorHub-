@@ -52,3 +52,39 @@
 .comment-avatar{width:40px;height:40px;border-radius:20px;background:#cfe8ff;color:#034ea2;display:flex;align-items:center;justify-content:center;font-weight:700}
 .comment-body{flex:1}
 .comment-input{flex:1;padding:10px;border-radius:8px;border:1px solid #e6e6e6}
+
+/* Tasks */
+.task-card{background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:12px}
+.badge{padding:6px 10px;border-radius:8px;font-weight:600}
+.badge.in-progress{background:#eef2ff;color:#3730a3}
+.badge.pending{background:#fff7ed;color:#92400e}
+.badge.completed{background:#ecfdf5;color:#065f46}
+
+/* Team (Equipo) */
+.team-list{display:flex;flex-direction:column;gap:12px}
+.team-member-card{display:flex;align-items:center;gap:12px;padding:14px;border-radius:8px;background:#fff;border:1px solid #f0f0f0}
+.member-avatar{width:56px;height:56px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#111}
+.role-badge{padding:6px 10px;border-radius:999px;font-weight:600;font-size:12px}
+.role-líder{background:#fff7ed;color:#92400e;border:1px solid #fde68a}
+.role-miembro{background:#eef2ff;color:#0f172a;border:1px solid #dceafe}
+.role-diseñador{background:#f8f0ff;color:#7c3aed;border:1px solid #f3e8ff}
+.role-editor-de-video{background:#ecfdf5;color:#065f46;border:1px solid #d1fae5}
+.role-info-box{background:#f6fbff;border:1px solid #dbeefe}
+
+/* Metrics (YouTube) */
+.metrics-card{border-radius:10px;overflow:hidden;border:1px solid #eee;background:#fff}
+.metrics-banner{height:64px;background:linear-gradient(90deg,#e11d48,#ef4444)}
+.metrics-body{display:flex;align-items:center;gap:18px;padding:18px}
+.metrics-avatar{width:72px;height:72px;border-radius:999px;background:#c7f0ff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;color:#034ea2;border:6px solid #fff;margin-top:-36px}
+.platform-pill{background:#f3efff;padding:8px 12px;border-radius:10px;font-weight:700}
+.metrics-tabs{display:flex;gap:8px;padding:8px;background:#f3f4f6;border-radius:999px}
+.metrics-tabs button{padding:8px 16px;border-radius:999px;border:0;background:transparent}
+.metrics-tabs button.active{background:#fff;border:1px solid #e8e8ef}
+.metric-card{background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:16px;text-align:left}
+.metric-value{font-weight:700;font-size:22px;margin-top:6px}
+
+/* Audience styles */
+.chart-card{background:#fff;border:1px solid #f0f0f0;padding:12px;border-radius:8px}
+.device-card{background:#fff;border:1px solid #f0f0f0;border-radius:8px;padding:12px;text-align:center;flex:1}
+.video-list-card{background:#fff;border:1px solid #f0f0f0;border-radius:12px;padding:16px}
+.video-thumb{width:160px;height:80px;background:linear-gradient(90deg,#6ee7b7,#60a5fa);border-radius:6px}

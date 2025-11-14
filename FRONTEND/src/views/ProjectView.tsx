@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { getJson } from '../services/api'
+import { useAuth } from '../context/AuthContext'
 import './ProjectView.css'
 import CreateEventModal from '../components/CreateEventModal'
+import CreateTaskModal from '../components/CreateTaskModal'
+import AudienceMetrics from '../components/AudienceMetrics'
+import VideoMetrics from '../components/VideoMetrics'
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -74,9 +78,40 @@ Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para 
       comments: [ { id: 'c3', author: 'Diego Ramírez', text: 'Listo para publicar', createdAt: new Date(2025,9,2,12,0) } ],
     }
   }
-
   const [scriptDetails, setScriptDetails] = useState<Record<string, any>>(initialScriptDetails)
   const [selectedScriptId, setSelectedScriptId] = useState<string | null>(null)
+  // Sample members (for assign dropdown)
+  const sampleMembers = ['María García','Carlos López','Ana Martínez','Diego Ramírez']
+
+  // Sample tasks
+  const initialTasks = [
+    { id: 't1', title: 'Grabar video TikTok trend navideño', description: 'Seguir el guion aprobado y grabar las 3 escenas', assignee: 'María García', dueDate: '2025-12-15', status: 'in_progress' },
+    { id: 't2', title: 'Editar reel de Instagram - Tutorial', description: 'Agregar transiciones y efectos según el guion', assignee: 'Carlos López', dueDate: '2025-12-16', status: 'pending' },
+    { id: 't3', title: 'Diseñar miniatura para video-YouTube', description: 'Miniatura llamativa para el video de crecimiento', assignee: 'Ana Martínez', dueDate: '2025-12-14', status: 'completed' },
+  ]
+  const [tasks, setTasks] = useState(initialTasks)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
+
+  // Detailed team members for Equipo tab
+  const teamMembers = [
+    { id: 'm1', name: 'María García', email: 'maria@example.com', roles: ['Líder'], avatar: 'MG', avatarBg: '#fff7ed' },
+    { id: 'm2', name: 'Carlos López', email: 'carlos@example.com', roles: ['Miembro','Diseñador'], avatar: 'CL', avatarBg: '#f8f0ff' },
+    { id: 'm3', name: 'Ana Martínez', email: 'ana@example.com', roles: ['Editor de Video'], avatar: 'AM', avatarBg: '#ecfdf5' },
+  ]
+
+  const totalTasks = tasks.length
+  const pendingCount = tasks.filter(t=>t.status==='pending').length
+  const inProgressCount = tasks.filter(t=>t.status==='in_progress').length
+  const completedCount = tasks.filter(t=>t.status==='completed').length
+  const progressPercent = totalTasks === 0 ? 0 : Math.round((completedCount/totalTasks)*100)
+
+  function addTask(t:any){
+    setTasks(prev => [t, ...prev])
+  }
+
+  function updateTaskStatus(id:string, status:string){
+    setTasks(prev => prev.map(t => t.id === id ? { ...t, status } : t))
+  }
 
   // Map static events to react-big-calendar events
   const [eventsState, setEventsState] = useState(() => staticEvents.map(ev => {
@@ -93,17 +128,26 @@ Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para 
   const eventsToday = today ? events.filter(e => e.start.toISOString().slice(0,10) === today.toISOString().slice(0,10)) : []
   const upcoming = events.filter(e => e.start > new Date()).length
 
+  const { token, initialized } = useAuth();
+
   useEffect(() => {
     if (!projectId) return;
+    // wait until auth restored
+    if (!initialized) return;
     (async () => {
       try {
-        const data = await getJson(`/api/projects/${projectId}`, undefined);
+        const data = await getJson(`/api/projects/${projectId}`, token || undefined);
         setProject(data);
-      } catch (err) {
+      } catch (err: any) {
         console.error('fetch project', err);
+        // handle unauthorized: redirect to login
+        if (err && err.status === 401) {
+          // token invalid or missing
+          navigate('/');
+        }
       }
     })();
-  }, [projectId]);
+  }, [projectId, token, initialized, navigate]);
 
   function handleSelectSlot(slotInfo:any){
     // slotInfo.start is a Date; set selected date and switch to list view
@@ -117,6 +161,23 @@ Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para 
   }
 
   const defaultDate = new Date(2025,9,1)
+
+  // Metrics (YouTube) sample data
+  const [metricTab, setMetricTab] = useState<'rendimiento'|'audiencia'|'porvideo'>('rendimiento')
+  const ytMetrics = {
+    channelName: 'Creativos Studio',
+    subscribers: '23.8K',
+    subscribersDelta: '+1.2K',
+    videosCount: 89,
+    views: '1.3M',
+    viewsDelta: '+18.5%',
+    watchTime: '89,400 horas',
+    watchTimeDelta: '+12.3%',
+    likes: '45.6K',
+    likesDelta: '+22.1%',
+    subsGain: '+1.2K',
+    subsLost: '-90',
+  }
 
   return (
     <div className="ch-project-page">
@@ -273,6 +334,117 @@ Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para 
           </div>
         )}
 
+        {tab === 'metrics' && (
+          <div>
+            <div className="ch-calendar-header">
+              <div>
+                <h3>Métricas del Canal</h3>
+                <div className="ch-small">Panel completo de análisis y rendimiento</div>
+              </div>
+              <div>
+                <button className="ch-secondary">🔄 Actualizar Datos</button>
+              </div>
+            </div>
+
+            <div className="metrics-card">
+              <div className="metrics-banner" />
+              <div className="metrics-body">
+                <div style={{display:'flex',alignItems:'center',gap:16}}>
+                  <div className="metrics-avatar">CS</div>
+                  <div>
+                    <div style={{fontWeight:700,fontSize:18}}>{ytMetrics.channelName}</div>
+                    <div className="muted">Suscriptores</div>
+                    <div style={{fontSize:22,fontWeight:700,marginTop:6}}>{ytMetrics.subscribers}</div>
+                    <div style={{color:'#10b981',fontSize:13,marginTop:6}}>{ytMetrics.subscribersDelta} este mes</div>
+                  </div>
+                </div>
+
+                <div style={{marginLeft:'auto',display:'flex',gap:24,alignItems:'center'}}>
+                  <div style={{textAlign:'right'}}>
+                    <div className="muted">Total de Videos</div>
+                    <div style={{fontWeight:700,fontSize:18}}>{ytMetrics.videosCount}</div>
+                    <div className="muted">Publicados</div>
+                  </div>
+
+                  <div style={{textAlign:'right'}}>
+                    <div className="platform-pill">YouTube</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div style={{height:12}} />
+
+            <div className="metrics-tabs">
+              <button className={metricTab==='rendimiento'?'active':''} onClick={()=>setMetricTab('rendimiento')}>Rendimiento</button>
+              <button className={metricTab==='audiencia'?'active':''} onClick={()=>setMetricTab('audiencia')}>Audiencia</button>
+              <button className={metricTab==='porvideo'?'active':''} onClick={()=>setMetricTab('porvideo')}>Por Video</button>
+            </div>
+
+            <div style={{height:12}} />
+
+            {metricTab === 'rendimiento' && (
+              <div className="ch-box">
+                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+                  <div>
+                    <div style={{fontWeight:700}}>Métricas de Rendimiento</div>
+                    <div className="muted">Estadísticas generales del canal</div>
+                  </div>
+                  <div>
+                    <button className="ch-btn ch-btn-secondary">Detalles Específicos</button>
+                  </div>
+                </div>
+
+                <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12}}>
+                  <div className="metric-card">
+                    <div className="muted">Vistas</div>
+                    <div className="metric-value">{ytMetrics.views}</div>
+                    <div style={{color:'#10b981',fontSize:13}}>↗ {ytMetrics.viewsDelta} vs. mes anterior</div>
+                  </div>
+
+                  <div className="metric-card">
+                    <div className="muted">Tiempo de Reproducción</div>
+                    <div className="metric-value">{ytMetrics.watchTime}</div>
+                    <div style={{color:'#10b981',fontSize:13}}>↗ {ytMetrics.watchTimeDelta} vs. mes anterior</div>
+                  </div>
+
+                  <div className="metric-card">
+                    <div className="muted">Likes</div>
+                    <div className="metric-value">{ytMetrics.likes}</div>
+                    <div style={{color:'#10b981',fontSize:13}}>↗ {ytMetrics.likesDelta} vs. mes anterior</div>
+                  </div>
+
+                  <div className="metric-card">
+                    <div className="muted">Suscripciones Ganadas</div>
+                    <div className="metric-value" style={{color:'#10b981'}}>{ytMetrics.subsGain}</div>
+                    <div style={{color:'#10b981',fontSize:13}}>↗ Excelente crecimiento</div>
+                  </div>
+
+                  <div className="metric-card">
+                    <div className="muted">Suscripciones Perdidas</div>
+                    <div className="metric-value" style={{color:'#dc2626'}}>{ytMetrics.subsLost}</div>
+                    <div className="muted">Tasa de retención: 92.5%</div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {metricTab === 'audiencia' && (
+              <div>
+                {/* Audience metrics component */}
+                {/* Lazy inline import to avoid heavy initial bundle if desired later */}
+                <AudienceMetrics />
+              </div>
+            )}
+
+            {metricTab === 'porvideo' && (
+              <div>
+                <VideoMetrics />
+              </div>
+            )}
+          </div>
+        )}
+
         {tab === 'scripts' && (
           <div>
             <div className="ch-calendar-header">
@@ -386,6 +558,121 @@ Vídeo de 15 segundos siguiendo el trend de "POV: Eres Santa preparándote para 
                     </div>
                   )}
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'tasks' && (
+          <div>
+            <div className="ch-calendar-header">
+              <div>
+                <h3>Tareas del Proyecto</h3>
+                <div className="ch-small">Organiza y da seguimiento a las tareas del equipo</div>
+              </div>
+              <div>
+                <button className="ch-primary" onClick={()=>setTaskModalOpen(true)}>+ Nueva Tarea</button>
+              </div>
+            </div>
+
+            <div className="ch-box" style={{marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div style={{width:'70%'}}>
+                  <div style={{fontWeight:600,marginBottom:6}}>Progreso General</div>
+                  <div style={{background:'#f3f4f6',height:12,borderRadius:8,overflow:'hidden'}}>
+                    <div style={{width:`${progressPercent}%`,height:'100%',background:'#111827'}} />
+                  </div>
+                </div>
+                <div style={{textAlign:'right'}}>{completedCount} de {totalTasks} completadas</div>
+              </div>
+            </div>
+
+            <div style={{display:'flex',gap:12,marginBottom:12}}>
+              <div className="stat-card"><div className="stat-num">{totalTasks}</div><div className="stat-label">Total</div></div>
+              <div className="stat-card"><div className="stat-num">{pendingCount}</div><div className="stat-label">Pendientes</div></div>
+              <div className="stat-card"><div className="stat-num">{inProgressCount}</div><div className="stat-label">En Progreso</div></div>
+              <div className="stat-card"><div className="stat-num">{completedCount}</div><div className="stat-label">Completadas</div></div>
+            </div>
+
+            <div className="ch-box">
+              <div style={{fontWeight:700,marginBottom:12}}>Todas las Tareas</div>
+              <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                {tasks.map(t => (
+                  <div key={t.id} className="task-card">
+                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                      <div style={{display:'flex',gap:12,alignItems:'flex-start'}}>
+                        <input type="checkbox" checked={t.status==='completed'} onChange={(e)=> updateTaskStatus(t.id, e.target.checked ? 'completed' : 'in_progress')} />
+                        <div>
+                          <div style={{fontWeight:600}}>{t.title}</div>
+                          <div className="muted" style={{marginTop:6}}>{t.description}</div>
+                          <div className="muted" style={{marginTop:8,fontSize:13}}>
+                            <span style={{marginRight:12}}>👤 {t.assignee}</span>
+                            <span style={{color: t.dueDate && new Date(t.dueDate) < new Date() ? '#dc2626' : '#666'}}>{t.dueDate ? new Date(t.dueDate).toLocaleDateString('es-ES') : ''}{t.dueDate && new Date(t.dueDate) < new Date() ? ' • Vencida' : ''}</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                        {t.status === 'in_progress' ? <div className="badge in-progress">En Progreso</div> : null}
+                        {t.status === 'pending' ? <div className="badge pending">Pendiente</div> : null}
+                        {t.status === 'completed' ? <div className="badge completed">Completada</div> : null}
+                        <div style={{display:'flex',gap:8}}>
+                          {t.status !== 'completed' && <button className="ch-btn ch-btn-secondary" onClick={()=> updateTaskStatus(t.id,'in_progress')}>En Progreso</button>}
+                          {t.status !== 'completed' && <button className="ch-btn ch-btn-primary" onClick={()=> updateTaskStatus(t.id,'completed')}>Completar</button>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {taskModalOpen && (
+              <CreateTaskModal members={sampleMembers} onClose={()=>setTaskModalOpen(false)} onCreate={(t:any)=> addTask(t)} />
+            )}
+          </div>
+        )}
+        {tab === 'team' && (
+          <div>
+            <div className="ch-calendar-header">
+              <div>
+                <h3>Miembros del Equipo ({teamMembers.length})</h3>
+                <div className="ch-small">Gestiona roles y permisos de los miembros del proyecto</div>
+              </div>
+              <div>
+                <button className="ch-primary">+ Invitar Miembro</button>
+              </div>
+            </div>
+
+            <div className="ch-box">
+              <div className="team-list">
+                {teamMembers.map(m => (
+                  <div key={m.id} className="team-member-card">
+                    <div style={{display:'flex',gap:12,alignItems:'center'}}>
+                      <div className="member-avatar" style={{background:m.avatarBg}}>{m.avatar}</div>
+                      <div style={{flex:1}}>
+                        <div style={{fontWeight:600}}>{m.name}</div>
+                        <div className="muted" style={{marginTop:4}}>{m.email}</div>
+                        <div style={{marginTop:8,display:'flex',gap:8}}>
+                          {m.roles.map((r:string,idx:number)=> (
+                            <div key={idx} className={`role-badge role-${r.replace(/\s+/g,'-').toLowerCase()}`}>{r}</div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div style={{height:12}} />
+
+            <div className="ch-box role-info-box">
+              <div style={{fontWeight:700,marginBottom:8}}>Información de Roles</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+                <div><div style={{fontWeight:600}}>Líder:</div><div className="muted">Gestiona miembros y tiene control total</div></div>
+                <div><div style={{fontWeight:600}}>Miembro:</div><div className="muted">Acceso completo a herramientas del proyecto</div></div>
+                <div><div style={{fontWeight:600}}>Diseñador:</div><div className="muted">Especialista en diseño visual y gráfico</div></div>
+                <div><div style={{fontWeight:600}}>Editor de Video:</div><div className="muted">Edición y producción de video</div></div>
               </div>
             </div>
           </div>
