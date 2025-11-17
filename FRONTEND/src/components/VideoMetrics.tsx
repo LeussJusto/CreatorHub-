@@ -13,17 +13,23 @@ import {
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
-const dailyData = {
-  labels: ['1 Nov','2 Nov','3 Nov','4 Nov','5 Nov','6 Nov','7 Nov','8 Nov','9 Nov','10 Nov','11 Nov','12 Nov','13 Nov','14 Nov'],
-  datasets: [{
-    label: 'Vistas Diarias',
-    data: [14000,16000,19000,14500,16000,22000,23500,18500,16500,20000,22000,25000,29000,27000],
-    fill: true,
-    backgroundColor: 'rgba(167,139,250,0.35)',
-    borderColor: 'rgba(167,139,250,1)',
-    tension: 0.3,
-    pointRadius: 0,
-  }]
+const buildDailyData = (series?: any[]) => {
+  if (series && series.length>0) {
+    return {
+      labels: series.map((r:any)=>r.date),
+      datasets: [{ label: 'Vistas Diarias', data: series.map((r:any)=>r.views || 0), fill:true, backgroundColor:'rgba(167,139,250,0.35)', borderColor:'rgba(167,139,250,1)', tension:0.3, pointRadius:0 }]
+    }
+  }
+  // fallback: show last 14 days with zero values (no invented sample metrics)
+  const days = 14;
+  const labels = Array.from({length:days}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate() - (days - 1 - i));
+    return `${d.getDate().toString().padStart(2,'0')} ${d.toLocaleString('default',{month:'short'})}`;
+  });
+  return {
+    labels,
+    datasets: [{ label: 'Vistas Diarias', data: Array(days).fill(0), fill: true, backgroundColor: 'rgba(167,139,250,0.15)', borderColor: 'rgba(167,139,250,0.6)', tension: 0.3, pointRadius:0 }]
+  }
 }
 
 const chartOptions = {
@@ -35,20 +41,19 @@ const chartOptions = {
   }
 }
 
-const sampleVideos = [
-  { id:'v1', title: 'Tutorial de Edición Avanzada', date:'10 Nov 2024', views:'45.6K', likes:'3.4K', comments:289, watchTime:'2,340 horas', duration:'4:23' },
-  { id:'v2', title: 'Tips para Creadores de Contenido', date:'8 Nov 2024', views:'38.9K', likes:'2.9K', comments:234, watchTime:'1,890 horas', duration:'3:45' },
-  { id:'v3', title: 'Mejores Prácticas en Redes Sociales', date:'5 Nov 2024', views:'52.3K', likes:'4.1K', comments:412, watchTime:'3,120 horas', duration:'5:12' },
-]
+// No sample videos: show empty list when no perVideo data available
 
-export default function VideoMetrics(){
+export default function VideoMetrics({ performanceSeries, perVideo }: { performanceSeries?: any[], perVideo?: any[] }): JSX.Element {
+  const daily = buildDailyData(performanceSeries);
+  const videos = (perVideo && perVideo.length>0) ? perVideo.map((pv:any)=> ({ id: pv.videoId, title: pv.title, date: '', views: (pv.series||[]).reduce((s:any,row:any)=>s + (Number(row.views||0)),0), likes:'—', comments:0, watchTime:'—', duration:'—', series: pv.series })) : [];
+
   return (
     <div>
       <div className="ch-box" style={{marginBottom:12}}>
         <div style={{fontWeight:700,marginBottom:6}}>Vistas Diarias</div>
-        <div className="muted">Rendimiento de visualizaciones en los últimos 14 días</div>
+        <div className="muted">Rendimiento de visualizaciones en los últimos días</div>
         <div style={{height:280,marginTop:12}}>
-          <Line data={dailyData} options={chartOptions} />
+          {performanceSeries && performanceSeries.length>0 ? <Line data={daily} options={chartOptions} /> : <div className="muted">No hay datos de series de rendimiento</div>}
         </div>
       </div>
 
@@ -56,8 +61,8 @@ export default function VideoMetrics(){
 
       <div style={{fontWeight:700,marginBottom:8}}>Rendimiento por Video</div>
       <div style={{display:'flex',flexDirection:'column',gap:12}}>
-        {sampleVideos.map(v => (
-          <div key={v.id} className="video-list-card">
+        {videos && videos.length>0 ? videos.map((v:any) => (
+          <div key={v.id || v.title} className="video-list-card">
             <div style={{display:'flex',gap:12,alignItems:'center'}}>
               <div className="video-thumb" />
               <div style={{flex:1}}>
@@ -89,7 +94,7 @@ export default function VideoMetrics(){
               </div>
             </div>
           </div>
-        ))}
+        )) : <div className="muted">No hay datos por video</div>}
       </div>
     </div>
   )

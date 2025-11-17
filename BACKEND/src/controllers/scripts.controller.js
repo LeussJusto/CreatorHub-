@@ -23,6 +23,18 @@ exports.createScript = async (req, res) => {
   }
 };
 
+exports.listScripts = async (req, res) => {
+  const { projectId } = req.params;
+  try {
+    const project = await Project.findById(projectId);
+    if (!project || !project.isMember(req.user.id)) return res.status(403).json({ error: 'Not allowed' });
+    const scripts = await Script.find({ project: projectId }).sort({ createdAt: -1 });
+    res.json(scripts);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to list scripts' });
+  }
+};
+
 exports.addVersion = async (req, res) => {
   const { scriptId } = req.params;
   const { content } = req.body;

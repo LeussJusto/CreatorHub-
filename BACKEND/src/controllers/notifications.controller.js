@@ -1,21 +1,25 @@
 const Notification = require('../models/Notification');
 
-exports.listMyNotifications = async (req, res) => {
+// Get current user's notifications (most recent first)
+exports.getMyNotifications = async (req, res) => {
   try {
-    const items = await Notification.find({ user: req.user.id }).sort({ createdAt: -1 }).limit(100);
-    res.json(items);
+    const notifs = await Notification.find({ user: req.user.id }).sort({ createdAt: -1 }).limit(100);
+    res.json(notifs);
   } catch (e) {
-    res.status(500).json({ error: 'Failed to list notifications' });
+    console.error('getMyNotifications error', e);
+    res.status(500).json({ error: 'Failed to fetch notifications' });
   }
 };
 
-exports.markRead = async (req, res) => {
+// Mark a notification as read (only by its owner)
+exports.markAsRead = async (req, res) => {
   const { id } = req.params;
   try {
     const updated = await Notification.findOneAndUpdate({ _id: id, user: req.user.id }, { read: true }, { new: true });
-    if (!updated) return res.status(404).json({ error: 'Not found' });
+    if (!updated) return res.status(404).json({ error: 'Notification not found' });
     res.json(updated);
   } catch (e) {
-    res.status(500).json({ error: 'Failed to mark read' });
+    console.error('markAsRead error', e);
+    res.status(500).json({ error: 'Failed to update notification' });
   }
 };

@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { body, param } = require('express-validator');
 const { authRequired } = require('../middleware/auth');
 const { createScript, addVersion, comment, setStatus } = require('../controllers/scripts.controller');
+const { listScripts } = require('../controllers/scripts.controller');
 const validate = require('../middleware/validate');
 
 router.use(authRequired);
@@ -11,6 +12,10 @@ router.post('/', [
   body('title').isString().notEmpty(),
   body('content').isString().notEmpty(),
 ], validate, createScript);
+
+router.get('/:projectId', [
+  param('projectId').isMongoId(),
+], validate, listScripts);
 
 router.post('/:scriptId/versions', [
   param('scriptId').isMongoId(),

@@ -11,6 +11,7 @@ export default function CreateTaskModal({ onClose, onCreate, members }: Props){
   const [desc, setDesc] = useState('')
   const [assignee, setAssignee] = useState('')
   const [dueDate, setDueDate] = useState('')
+  const [category, setCategory] = useState('medio')
 
   function handleCreate(){
     if(!title) return
@@ -20,7 +21,8 @@ export default function CreateTaskModal({ onClose, onCreate, members }: Props){
       description: desc,
       assignee,
       dueDate: dueDate || null,
-      status: 'pending'
+      status: 'pending',
+      category
     }
     onCreate(task)
     onClose()
@@ -48,6 +50,13 @@ export default function CreateTaskModal({ onClose, onCreate, members }: Props){
 
           <label style={{marginTop:12}}>Fecha límite</label>
           <input type="date" value={dueDate} onChange={e=>setDueDate(e.target.value)} />
+
+          <label style={{marginTop:12}}>Prioridad</label>
+          <select value={category} onChange={e=>setCategory(e.target.value)}>
+            <option value="bajo">Bajo</option>
+            <option value="medio">Medio</option>
+            <option value="alto">Alto</option>
+          </select>
         </div>
         <div className="ch-modal-footer">
           <button className="ch-btn ch-btn-secondary" onClick={onClose}>Cancelar</button>

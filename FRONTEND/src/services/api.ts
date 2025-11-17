@@ -14,6 +14,20 @@ export async function postJson(path: string, body: any, token?: string) {
   return data;
 }
 
+export async function patchJson(path: string, body: any, token?: string) {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw { status: res.status, data };
+  return data;
+}
+
 export async function getJson(path: string, token?: string) {
   const res = await fetch(`${API_URL}${path}`, {
     headers: {

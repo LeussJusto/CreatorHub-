@@ -24,6 +24,7 @@ router.put('/:projectId', [
   param('projectId').isMongoId(),
   body('name').optional().isString(),
   body('description').optional().isString(),
+  body('dueDate').optional().isISO8601(),
 ], validate, updateProject);
 
 router.delete('/:projectId', [
@@ -45,5 +46,10 @@ router.patch('/:projectId/leader', [
   body('memberId').isMongoId(),
   body('isLeader').isBoolean(),
 ], validate, setLeader);
+
+router.delete('/:projectId/members/:memberId', [
+  param('projectId').isMongoId(),
+  param('memberId').isMongoId(),
+], validate, require('../controllers/projects.controller').removeMember);
 
 module.exports = router;

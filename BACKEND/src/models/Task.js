@@ -13,7 +13,9 @@ const TaskSchema = new mongoose.Schema({
   assignees: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   dueDate: { type: Date },
   checklist: [ChecklistItemSchema],
-  status: { type: String, enum: ['todo', 'in_progress', 'done'], default: 'todo' },
+  // Keep old values for backward compatibility and accept new frontend values
+  status: { type: String, enum: ['todo','pending', 'in_progress', 'done','completed'], default: 'pending' },
+  category: { type: String, enum: ['bajo','medio','alto'], default: 'medio' },
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 }, { timestamps: true });
 

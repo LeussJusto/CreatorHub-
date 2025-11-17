@@ -7,20 +7,19 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'not_started'|'in_progress'|'completed'>('not_started');
   const [dueDate, setDueDate] = useState('');
-  const [platforms, setPlatforms] = useState<{instagram:boolean,tiktok:boolean,youtube:boolean}>({instagram:false,tiktok:false,youtube:false});
+  const [selectedPlatform, setSelectedPlatform] = useState<'instagram'|'tiktok'|'youtube'|null>(null);
   const [loading, setLoading] = useState(false);
 
   const togglePlatform = (k:'instagram'|'tiktok'|'youtube') => {
-    setPlatforms(prev => ({ ...prev, [k]: !prev[k] }));
+    setSelectedPlatform(prev => prev === k ? null : k);
   }
 
   const submit = async () => {
     if (!name) return alert('Nombre requerido');
     try {
       setLoading(true);
-      const selected = Object.keys(platforms).filter(k => (platforms as any)[k]);
       const body:any = { name, description };
-      if (selected.length) body.platforms = selected;
+      if (selectedPlatform) body.platforms = [selectedPlatform];
       if (status) body.status = status;
       if (dueDate) body.dueDate = dueDate;
       const res = await postJson('/api/projects', body, token);
@@ -64,9 +63,15 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
           <div style={{marginTop:12}}>
             <label>Plataforma Principal</label>
             <div className="ch-platforms">
-              <label className={platforms.instagram? 'active':''}><input type="checkbox" checked={platforms.instagram} onChange={()=>togglePlatform('instagram')} /> Instagram</label>
-              <label className={platforms.tiktok? 'active':''}><input type="checkbox" checked={platforms.tiktok} onChange={()=>togglePlatform('tiktok')} /> TikTok</label>
-              <label className={platforms.youtube? 'active':''}><input type="checkbox" checked={platforms.youtube} onChange={()=>togglePlatform('youtube')} /> YouTube</label>
+              <label className={selectedPlatform === 'instagram' ? 'active' : ''}>
+                <input type="radio" name="platform" checked={selectedPlatform === 'instagram'} onChange={()=>togglePlatform('instagram')} /> Instagram
+              </label>
+              <label className={selectedPlatform === 'tiktok' ? 'active' : ''}>
+                <input type="radio" name="platform" checked={selectedPlatform === 'tiktok'} onChange={()=>togglePlatform('tiktok')} /> TikTok
+              </label>
+              <label className={selectedPlatform === 'youtube' ? 'active' : ''}>
+                <input type="radio" name="platform" checked={selectedPlatform === 'youtube'} onChange={()=>togglePlatform('youtube')} /> YouTube
+              </label>
             </div>
           </div>
 

@@ -26,11 +26,20 @@ const ProjectSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 ProjectSchema.methods.isMember = function (userId) {
-  return this.members.some(m => m.user.toString() === userId.toString());
+  const uid = String(userId);
+  return this.members.some(m => {
+    // m.user can be an ObjectId or a populated User document
+    const candidate = m.user && m.user._id ? String(m.user._id) : String(m.user);
+    return candidate === uid;
+  });
 };
 
 ProjectSchema.methods.isLeader = function (userId) {
-  return this.members.some(m => m.user.toString() === userId.toString() && m.isLeader);
+  const uid = String(userId);
+  return this.members.some(m => {
+    const candidate = m.user && m.user._id ? String(m.user._id) : String(m.user);
+    return candidate === uid && m.isLeader;
+  });
 };
 
 module.exports = mongoose.model('Project', ProjectSchema);

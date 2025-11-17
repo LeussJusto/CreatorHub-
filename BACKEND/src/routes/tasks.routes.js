@@ -9,6 +9,7 @@ router.use(authRequired);
 router.post('/', [
   body('projectId').isMongoId(),
   body('title').isString().notEmpty(),
+  body('category').optional().isIn(['bajo','medio','alto']),
 ], validate, createTask);
 
 router.get('/:projectId', [
