@@ -4,7 +4,6 @@ import Header from '../components/Header';
 import MetricCard from '../components/MetricCard';
 import ProjectCard from '../components/ProjectCard';
 import IntegrationNotice from '../components/IntegrationNotice';
-import IntegrationMetricsCard from '../components/IntegrationMetricsCard';
 import './Dashboard.css';
 import CreateProjectModal from '../components/CreateProjectModal';
 import { getJson, postJson } from '../services/api';
@@ -146,10 +145,7 @@ export default function DashboardView(){
           {/* Removed project selector per request: no filter between integration and projects list */}
         </section>
 
-        {/* Integration metrics card: shows connection status, basic profile and recent media */}
-        <section>
-          <IntegrationMetricsCard />
-        </section>
+        {/* Integration metrics card removed per request */}
 
         <section className="ch-projects">
           <div className="ch-projects-header">
