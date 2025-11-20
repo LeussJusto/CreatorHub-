@@ -7,10 +7,10 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'not_started'|'in_progress'|'completed'>('not_started');
   const [dueDate, setDueDate] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState<'tiktok'|'youtube'|null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<'tiktok'|'youtube'|'instagram'|null>(null);
   const [loading, setLoading] = useState(false);
 
-  const togglePlatform = (k:'tiktok'|'youtube') => {
+  const togglePlatform = (k:'tiktok'|'youtube'|'instagram') => {
     setSelectedPlatform(prev => prev === k ? null : k);
   }
 
@@ -68,6 +68,9 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
               </label>
               <label className={selectedPlatform === 'youtube' ? 'active' : ''}>
                 <input type="radio" name="platform" checked={selectedPlatform === 'youtube'} onChange={()=>togglePlatform('youtube')} /> YouTube
+              </label>
+              <label className={selectedPlatform === 'instagram' ? 'active' : ''}>
+                <input type="radio" name="platform" checked={selectedPlatform === 'instagram'} onChange={()=>togglePlatform('instagram')} /> Instagram
               </label>
             </div>
           </div>

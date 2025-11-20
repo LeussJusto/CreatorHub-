@@ -78,8 +78,8 @@ export default function IntegrationMetricsCard(){
   };
 
   const picture = () => {
-    // Prefer profile.raw.profile_picture_url, else first media media_url
-    const p = profile && (profile.raw && (profile.raw.profile_picture_url || profile.raw.profile_picture) || profile.profile_picture_url || null);
+    // Prefer top-level `profile.profile_picture_url`, then `profile.raw.*`, then media, then account.raw
+    const p = profile && (profile.profile_picture_url || (profile.raw && (profile.raw.profile_picture_url || profile.raw.profile_picture)) || profile.profile_picture || null);
     if (p) return p;
     if (media && media.length > 0) return media[0].media_url || media[0].thumbnail_url || null;
     if (account && account.raw) {
@@ -107,8 +107,11 @@ export default function IntegrationMetricsCard(){
             ) : (
               <div className="ch-connected">
                 <div style={{display:'flex',gap:12,alignItems:'center'}}>
-                  <div>
-                    <div style={{fontWeight:600}}>{profile?.username || account.displayName || 'Cuenta Instagram'}</div>
+                  <div style={{display:'flex',flexDirection:'column',alignItems:'center'}}>
+                    {picture() ? (
+                      <img src={picture() as string} alt="Foto de perfil Instagram" style={{width:72,height:72,borderRadius:'50%',objectFit:'cover'}} />
+                    ) : null}
+                    <div style={{fontWeight:600,marginTop:8}}>{profile?.username || account.displayName || 'Cuenta Instagram'}</div>
                     <div className="muted">Publicaciones: {profile?.media_count ?? account?.metadata?.media_count ?? 0}</div>
                   </div>
                   <div style={{marginLeft:12}}>

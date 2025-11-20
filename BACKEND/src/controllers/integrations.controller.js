@@ -67,31 +67,8 @@ exports.connectAccount = async (req, res) => {
 exports.listAccounts = async (req, res) => {
   try {
     const accounts = await IntegrationAccount.find({ user: req.user.id });
-    // Log token liveness for Instagram accounts to help debugging.
-    try {
-      for (const a of accounts) {
-        if (String(a.platform).toLowerCase() === 'instagram') {
-          try {
-            if (a.expiresAt && new Date(a.expiresAt) > new Date(Date.now() + 30000)) {
-              console.log('instagram token status: alive', { accountId: String(a._id).slice(0,8), expiresAt: a.expiresAt });
-            } else {
-              // Try to obtain a valid token (may refresh); do not fail the endpoint if this throws
-              try {
-                const valid = await getValidAccessToken(a);
-                if (valid) console.log('instagram token status: valid/refreshed', { accountId: String(a._id).slice(0,8) });
-                else console.log('instagram token status: missing', { accountId: String(a._id).slice(0,8) });
-              } catch (err) {
-                console.log('instagram token status: invalid or refresh failed', { accountId: String(a._id).slice(0,8), err: err && err.message });
-              }
-            }
-          } catch (e) {
-            console.log('instagram token status: check error', { accountId: String(a._id).slice(0,8), err: e && e.message });
-          }
-        }
-      }
-    } catch (logErr) {
-      console.log('listAccounts: token liveness logging failed', logErr && (logErr.message || String(logErr)));
-    }
+    // Token liveness checking removed to reduce noisy logs. Enable detailed checks
+    // by setting environment variable DEBUG_LOGS=1 and re-adding logic if needed.
     // Return a lightweight summary for the frontend to show connected state and display name
     const summary = accounts.map(a => {
       const base = { id: a._id, platform: a.platform, createdAt: a.createdAt };
@@ -243,10 +220,12 @@ exports.oauthInstagramStart = async (req, res) => {
     // Use Facebook Login / Graph scopes to access Instagram Business insights/pages
     const scopes = (process.env.INSTAGRAM_SCOPES || 'instagram_basic,instagram_manage_insights,pages_read_engagement,pages_show_list,business_management');
 
+    // Minimal logging only; enable verbose debug with DEBUG_LOGS=1
     try {
-      // Log important values for debugging without printing secrets
-      const clientIdSample = clientId ? String(clientId).slice(0, 12) : null;
-      console.log('oauthInstagramStart:', { redirectUri, scopes, clientIdPresent: !!clientId, clientIdSample, statePrefix: String(state).slice(0,10) });
+      if (process.env.DEBUG_LOGS) {
+        const clientIdSample = clientId ? String(clientId).slice(0, 12) : null;
+        console.log('oauthInstagramStart:', { redirectUri, scopes, clientIdPresent: !!clientId, clientIdSample, statePrefix: String(state).slice(0,10) });
+      }
     } catch (e) {}
 
     const params = new URLSearchParams({
@@ -260,14 +239,16 @@ exports.oauthInstagramStart = async (req, res) => {
     const url = `https://www.facebook.com/v16.0/dialog/oauth?${params.toString()}`;
     const accept = (req.get('Accept') || '').toLowerCase();
     try {
-      console.log('oauthInstagramStart: built url (truncated) ->', url && (url.length > 200 ? url.slice(0,200) + '...' : url));
-      console.log('oauthInstagramStart: Accept header ->', accept || '(none)');
+      if (process.env.DEBUG_LOGS) {
+        console.log('oauthInstagramStart: built url (truncated) ->', url && (url.length > 200 ? url.slice(0,200) + '...' : url));
+        console.log('oauthInstagramStart: Accept header ->', accept || '(none)');
+      }
     } catch (e) {}
     if (accept.includes('application/json')) {
-      try { console.log('oauthInstagramStart: returning JSON { url } to SPA'); } catch (e) {}
+      try { if (process.env.DEBUG_LOGS) console.log('oauthInstagramStart: returning JSON { url } to SPA'); } catch (e) {}
       return res.json({ url });
     }
-    try { console.log('oauthInstagramStart: redirecting user to provider'); } catch (e) {}
+    try { if (process.env.DEBUG_LOGS) console.log('oauthInstagramStart: redirecting user to provider'); } catch (e) {}
     return res.redirect(url);
   } catch (err) {
     return res.status(500).json({ error: 'Failed to start Instagram OAuth' });
@@ -277,7 +258,6 @@ exports.oauthInstagramStart = async (req, res) => {
 // Callback for Instagram OAuth: exchange code for token, upgrade to long-lived token and persist IntegrationAccount
 exports.oauthInstagramCallback = async (req, res) => {
   const { code, state } = req.query;
-  try { console.log('oauthInstagramCallback: callback received', sanitizeForServerLog(req.query)); } catch (e) {}
   if (!code || !state) return res.status(400).send('Missing code or state');
 
   try {
@@ -361,15 +341,15 @@ exports.oauthInstagramCallback = async (req, res) => {
     let profile = {};
     if (igUserId && pageAccessToken) {
       try {
-        // debug token for diagnostics (scopes/type)
+        // debug token for diagnostics (scopes/type) — verbose only if DEBUG_LOGS=1
         try {
           const appId = process.env.FACEBOOK_APP_ID || process.env.INSTAGRAM_CLIENT_ID || '';
           const appSecret = process.env.FACEBOOK_APP_SECRET || process.env.INSTAGRAM_CLIENT_SECRET || '';
-          if (appId && appSecret) {
+          if (appId && appSecret && process.env.DEBUG_LOGS) {
             const appToken = `${appId}|${appSecret}`;
             const dbg = await axios.get('https://graph.facebook.com/debug_token', { params: { input_token: pageAccessToken, access_token: appToken } });
             try { console.log('oauthInstagramCallback: debug_token (pageAccessToken) ->', sanitizeForServerLog(dbg.data)); } catch (e) {}
-          } else {
+          } else if (!appId || !appSecret) {
             try { console.warn('oauthInstagramCallback: skipping debug_token - FACEBOOK_APP_ID/SECRET missing'); } catch(e){}
           }
         } catch (dbgErr) {
@@ -534,7 +514,7 @@ exports.listAccountVideos = async (req, res) => {
   const shortsOnly = req.query.shortsOnly === '1' || req.query.shortsOnly === 'true';
   const publicOnly = req.query.publicOnly === '1' || req.query.publicOnly === 'true';
   try {
-    try { console.log('listAccountVideos: incoming request', { accountId: id, userId: req.user && String(req.user.id).slice(0,8) }); } catch (e) {}
+    try { if (process.env.DEBUG_LOGS) console.log('listAccountVideos: incoming request', { accountId: id, userId: req.user && String(req.user.id).slice(0,8) }); } catch (e) {}
     const acc = await IntegrationAccount.findOne({ _id: id, user: req.user.id });
     if (!acc) return res.status(404).json({ error: 'Integration account not found' });
 
@@ -591,16 +571,9 @@ exports.listAccountVideos = async (req, res) => {
         // For IG Business/Creator flows prefer Facebook Graph v16.0 and Page tokens
         const hasPageId = !!(acc.metadata && (acc.metadata.page_id || acc.metadata.pageId || (acc.metadata.raw && (acc.metadata.raw.page_id || acc.metadata.raw.pageId))));
         const graphBase = 'https://graph.facebook.com/v16.0';
-        try { console.log('listAccountVideos: instagram endpoint selection', { accountId: id, graphBase, hasPageId }); } catch (e) {}
-
-        // Debug: log stored metadata and a sanitized token sample to understand why username may be null
-        try {
-          console.log('listAccountVideos: instagram stored metadata', sanitizeForServerLog(acc.metadata || {}));
-          try {
-            const tokenSample = token ? (String(token).slice(0,8) + '...') : null;
-            console.log('listAccountVideos: access token present, sample:', tokenSample);
-          } catch (tokErr) { /* ignore token sample errors */ }
-        } catch (logErr) {}
+        try { if (process.env.DEBUG_LOGS) console.log('listAccountVideos: instagram endpoint selection', { accountId: id, graphBase, hasPageId }); } catch (e) {}
+        // Minimal debug: stored metadata printed only when DEBUG_LOGS=1
+        try { if (process.env.DEBUG_LOGS) console.log('listAccountVideos: instagram stored metadata', sanitizeForServerLog(acc.metadata || {})); } catch (e) {}
 
         // Try to ensure we have a Page access token when pageId is present
         let tokenForPage = token;
@@ -618,15 +591,15 @@ exports.listAccountVideos = async (req, res) => {
           }
         }
 
-        // Optional debug_token to inspect scopes and token type (helps diagnose missing scopes)
+        // Optional debug_token: only log when DEBUG_LOGS=1 to avoid noisy output in production
         try {
           const appId = process.env.FACEBOOK_APP_ID || process.env.INSTAGRAM_CLIENT_ID || '';
           const appSecret = process.env.FACEBOOK_APP_SECRET || process.env.INSTAGRAM_CLIENT_SECRET || '';
-          if (appId && appSecret) {
+          if (appId && appSecret && process.env.DEBUG_LOGS) {
             const appToken = `${appId}|${appSecret}`;
             const dbg = await axios.get('https://graph.facebook.com/debug_token', { params: { input_token: tokenForPage || token, access_token: appToken } });
             try { console.log('listAccountVideos: debug_token ->', sanitizeForServerLog(dbg.data)); } catch (e) {}
-          } else {
+          } else if (!appId || !appSecret) {
             try { console.warn('listAccountVideos: skipping debug_token - FACEBOOK_APP_ID/SECRET missing'); } catch(e){}
           }
         } catch (dbgErr) {
@@ -653,7 +626,7 @@ exports.listAccountVideos = async (req, res) => {
                 const prof = await axios.get(`${graphBase}/${igUserId}`, { params: { fields: 'id,username,profile_picture_url,media_count', access_token: tokenForPage } });
                 profile = Object.assign(profile, prof.data || {});
               }
-              try { console.log('listAccountVideos: page fetch result (sanitized)', sanitizeForServerLog(pageResp.data)); } catch (e) {}
+              try { if (process.env.DEBUG_LOGS) console.log('listAccountVideos: page fetch result (sanitized)', sanitizeForServerLog(pageResp.data)); } catch (e) {}
             } catch (pageErr) {
               console.error('listAccountVideos: page fetch error', { pageId, err: pageErr && (pageErr.response?.data || pageErr.message || String(pageErr)) });
               // fallback to prof normal
@@ -679,15 +652,54 @@ exports.listAccountVideos = async (req, res) => {
         const userMetrics = {};
         try {
           // 1) day metrics for recent activity. Some metrics (eg. profile_views) require metric_type=total_value
-          const dayMetrics = ['reach','profile_views'];
-          const insDayResp = await axios.get(`${graphBase}/${igUserId}/insights`, { params: { metric: dayMetrics.join(','), period: 'day', metric_type: 'total_value', access_token: tokenForPage } });
+          // Add impressions and engaged_users to inspect more signals
+          // Note: use metric names accepted by the Graph API for PROFILE-level insights.
+          // 'impressions' and 'engaged_users' are not valid profile-level metric names in some Graph versions.
+          // Use 'accounts_engaged' and 'total_interactions' where appropriate.
+          // Request only metrics compatible with `metric_type=total_value` in one call
+          const dayMetricsTotalValue = ['reach','profile_views','accounts_engaged','total_interactions'];
+          const insDayResp = await axios.get(`${graphBase}/${igUserId}/insights`, { params: { metric: dayMetricsTotalValue.join(','), period: 'day', metric_type: 'total_value', access_token: tokenForPage } });
           if (insDayResp && Array.isArray(insDayResp.data?.data)) {
             for (const m of insDayResp.data.data) {
               let latest = null;
               if (Array.isArray(m.values) && m.values.length) latest = m.values[m.values.length-1].value;
+              else if (typeof m.total_value === 'number') latest = m.total_value;
               else if (m.total_value && typeof m.total_value.value !== 'undefined') latest = m.total_value.value;
               userMetrics[m.name] = latest;
             }
+          }
+          // Try extra optional profile-level metrics (best-effort). These may be unavailable on some accounts.
+          try {
+            // Request additional recommended profile metrics (avoid deprecated 'impressions')
+            const extraMetrics = ['website_clicks','profile_activity'];
+            const insExtra = await axios.get(`${graphBase}/${igUserId}/insights`, { params: { metric: extraMetrics.join(','), period: 'day', metric_type: 'total_value', access_token: tokenForPage } });
+            if (insExtra && Array.isArray(insExtra.data?.data)) {
+              for (const m of insExtra.data.data) {
+                let latest = null;
+                if (Array.isArray(m.values) && m.values.length) latest = m.values[m.values.length-1].value;
+                else if (typeof m.total_value === 'number') latest = m.total_value;
+                else if (m.total_value && typeof m.total_value.value !== 'undefined') latest = m.total_value.value;
+                if (latest !== null) userMetrics[m.name] = latest;
+              }
+            }
+          } catch (e) {
+            // ignore: optional metrics may not be present for all accounts
+            if (process.env.DEBUG_LOGS) console.warn('listAccountVideos: optional profile metrics fetch failed', { err: e && (e.response?.data || e.message || String(e)) });
+          }
+          // Request online_followers separately as a time_series metric to avoid incompatibility with total_value
+          try {
+            const onlineResp = await axios.get(`${graphBase}/${igUserId}/insights`, { params: { metric: 'online_followers', period: 'day', metric_type: 'time_series', access_token: tokenForPage } });
+            if (onlineResp && Array.isArray(onlineResp.data?.data)) {
+              for (const m of onlineResp.data.data) {
+                let latest = null;
+                if (Array.isArray(m.values) && m.values.length) latest = m.values[m.values.length-1].value;
+                else if (typeof m.total_value === 'number') latest = m.total_value;
+                else if (m.total_value && typeof m.total_value.value !== 'undefined') latest = m.total_value.value;
+                userMetrics[m.name] = latest;
+              }
+            }
+          } catch (e) {
+            // non-fatal: some accounts may not have this metric available
           }
         } catch (e) {
           console.error('listAccountVideos: insights (day) fetch error', { accountId: id, igUserId, err: e && (e.response?.data || e.message || String(e)) });
@@ -699,6 +711,7 @@ exports.listAccountVideos = async (req, res) => {
             for (const m of lifeResp.data.data) {
               let latest = null;
               if (Array.isArray(m.values) && m.values.length) latest = m.values[m.values.length-1].value;
+              else if (typeof m.total_value === 'number') latest = m.total_value;
               else if (m.total_value && typeof m.total_value.value !== 'undefined') latest = m.total_value.value;
               userMetrics[m.name] = latest;
             }
@@ -707,47 +720,64 @@ exports.listAccountVideos = async (req, res) => {
           console.error('listAccountVideos: insights (follower_count) fetch error', { accountId: id, igUserId, err: e && (e.response?.data || e.message || String(e)) });
         }
 
+        // Optional: try demographic metrics (engaged audience) — heavy, best-effort
+        try {
+          const demoResp = await axios.get(`${graphBase}/${igUserId}/insights`, { params: { metric: 'engaged_audience_demographics', period: 'lifetime', timeframe: 'last_90_days', access_token: tokenForPage } });
+          if (demoResp && demoResp.data && Array.isArray(demoResp.data.data)) {
+            userMetrics['engaged_audience_demographics'] = demoResp.data.data;
+          }
+        } catch (e) {
+          if (process.env.DEBUG_LOGS) console.warn('listAccountVideos: demographics fetch failed', { err: e && (e.response?.data || e.message || String(e)) });
+        }
+
         // Fetch recent media list
         let media = [];
         try {
-          const mediaResp = await axios.get(`${graphBase}/${igUserId}/media`, { params: { fields: 'id,caption,media_type,media_url,thumbnail_url,timestamp,like_count,comments_count', access_token: tokenForPage, limit: 50 } });
+          const mediaResp = await axios.get(`${graphBase}/${igUserId}/media`, { params: { fields: 'id,caption,media_type,media_url,permalink,thumbnail_url,media_product_type,timestamp,like_count,comments_count', access_token: tokenForPage, limit: 50 } });
           const items = mediaResp.data && mediaResp.data.data ? mediaResp.data.data : [];
           // For each media, attempt to fetch media-level insights
           const mapped = await Promise.all(items.map(async (m) => {
-            const base = { id: m.id, caption: m.caption || null, media_type: m.media_type || null, media_url: m.media_url || m.thumbnail_url || null, timestamp: m.timestamp || null };
+            const base = { id: m.id, caption: m.caption || null, media_type: m.media_type || null, media_url: m.media_url || m.thumbnail_url || null, permalink: m.permalink || null, timestamp: m.timestamp || null, media_product_type: m.media_product_type || null };
             // Pre-fill with counts present on the media node
             const metrics = { views: null, likes: (m.like_count || null), comments: (m.comments_count || null), saves: null, shares: null };
             try {
-              // Use valid media-level metrics: views,likes,comments
-              const mm = await axios.get(`${graphBase}/${m.id}/insights`, { params: { metric: 'views,likes,comments', access_token: tokenForPage } });
+              // Request media-level metrics; avoid deprecated 'video_views' and profile-level 'impressions'
+              const mediaMetricsList = ['views','engagement','likes','comments','saved','shares','reach'];
+              const mm = await axios.get(`${graphBase}/${m.id}/insights`, { params: { metric: mediaMetricsList.join(','), access_token: tokenForPage } });
               if (mm && Array.isArray(mm.data?.data)) {
                 for (const it of mm.data.data) {
                   const name = it.name;
-                  const latest = Array.isArray(it.values) && it.values.length ? it.values[it.values.length-1].value : null;
-                  if (name === 'views') metrics.views = latest;
-                  if (name === 'likes') metrics.likes = latest;
-                  if (name === 'comments') metrics.comments = latest;
-                  if (name === 'saves') metrics.saves = latest;
-                  if (name === 'shares') metrics.shares = latest;
+                  const latest = Array.isArray(it.values) && it.values.length ? it.values[it.values.length-1].value : (typeof it.total_value === 'number' ? it.total_value : (it.total_value && it.total_value.value ? it.total_value.value : null));
+                  if (name === 'views') metrics.views = latest || metrics.views;
+                  if (name === 'likes' || name === 'like_count') metrics.likes = latest || metrics.likes;
+                  if (name === 'comments' || name === 'comments_count') metrics.comments = latest || metrics.comments;
+                  if (name === 'saved' || name === 'saves') metrics.saves = latest || metrics.saves;
+                  if (name === 'shares' || name === 'share_count' || name === 'share') metrics.shares = latest || metrics.shares;
+                  if (name === 'engagement' || name === 'engaged_users') metrics.engagement = latest || metrics.engagement;
+                  if (name === 'reach') metrics.reach = latest || metrics.reach;
                 }
               }
             } catch (e) {
-              // ignore per-media insights failures
+              if (process.env.DEBUG_LOGS) console.warn('listAccountVideos: media insights fetch failed for', m.id, { err: e && (e.response?.data || e.message || String(e)) });
             }
             return Object.assign(base, { metrics });
           }));
           media = mapped;
         } catch (e) {
-          // ignore media fetch failure
+          if (process.env.DEBUG_LOGS) console.warn('listAccountVideos: media fetch failed', { err: e && (e.response?.data || e.message || String(e)) });
         }
 
         // Build the profile-level response mapping to requested keys
         const profileResult = {
           username: profile.username || null,
           ig_user_id: profile.id || igUserId,
+          profile_picture_url: profile.profile_picture_url || profile.profile_picture || (profile.raw && (profile.raw.profile_picture_url || (profile.raw.raw && profile.raw.raw.profile_picture_url) || profile.raw.profile_picture)) || null,
           follower_count: userMetrics.follower_count || null,
           profile_views: userMetrics.profile_views || null,
           reach: userMetrics.reach || null,
+          impressions: userMetrics.impressions || null,
+          website_clicks: userMetrics.website_clicks || null,
+          engaged_users: userMetrics.engaged_users || null,
           online_followers: userMetrics.online_followers || null,
           raw: profile,
         };
@@ -773,7 +803,7 @@ exports.listAccountVideos = async (req, res) => {
           if (changed) {
             try {
               await acc.save();
-              try { console.log('listAccountVideos: updated IntegrationAccount metadata', { accountId: id, metadataSample: sanitizeForServerLog({ username: acc.metadata.username, media_count: acc.metadata.media_count }) }); } catch (e) {}
+              try { if (process.env.DEBUG_LOGS) console.log('listAccountVideos: updated IntegrationAccount metadata', { accountId: id, metadataSample: sanitizeForServerLog({ username: acc.metadata.username, media_count: acc.metadata.media_count }) }); } catch (e) {}
             } catch (saveErr) {
               console.warn('listAccountVideos: failed to persist instagram metadata', { accountId: id, err: saveErr && (saveErr.message || String(saveErr)) });
             }
@@ -782,8 +812,35 @@ exports.listAccountVideos = async (req, res) => {
           console.warn('listAccountVideos: metadata persistence error', { accountId: id, err: e && (e.message || String(e)) });
         }
 
-        try { console.log('listAccountVideos: returning instagram profile', { accountId: id, ig_user_id: profileResult.ig_user_id, mediaCount: (media || []).length, graphBase }); } catch (e) {}
-        return res.json({ profile: profileResult, media });
+        // Always log a concise metrics summary so the developer can inspect which
+        // profile-level metrics arrived and which are missing; errors are still
+        // reported via console.error elsewhere.
+          try {
+          const metricsPresence = {
+            follower_count: profileResult.follower_count !== null,
+            profile_views: profileResult.profile_views !== null,
+            reach: profileResult.reach !== null,
+            impressions: profileResult.impressions !== null,
+            website_clicks: profileResult.website_clicks !== null,
+            online_followers: profileResult.online_followers !== null,
+            engaged_audience_demographics: Boolean(userMetrics && userMetrics.engaged_audience_demographics),
+          };
+          const mediaWithViews = Array.isArray(media) ? media.filter(m => m.metrics && (m.metrics.views)).length : 0;
+          console.log('listAccountVideos: instagram metrics summary', sanitizeForServerLog({ accountId: id, username: profileResult.username, ig_user_id: profileResult.ig_user_id, metricsPresence, mediaCount: (media || []).length, mediaWithViews, graphBase }));
+        } catch (e) {
+          try { console.warn('listAccountVideos: metrics summary log failed', e && (e.message || String(e))); } catch (er) {}
+        }
+        // Include a machine-readable presence map and raw metric map for frontend troubleshooting
+        const metricsPresence = {
+          follower_count: profileResult.follower_count !== null,
+          profile_views: profileResult.profile_views !== null,
+          reach: profileResult.reach !== null,
+          impressions: profileResult.impressions !== null,
+          website_clicks: profileResult.website_clicks !== null,
+          online_followers: profileResult.online_followers !== null,
+          engaged_audience_demographics: Boolean(userMetrics && userMetrics.engaged_audience_demographics),
+        };
+        return res.json({ profile: profileResult, media, metricsPresence, metricsRaw: userMetrics });
       } catch (err) {
         console.error('integrations.listAccountVideos: unexpected instagram error', { account: acc._id, err: err && (err.response?.data || err.message || String(err)) });
         try { console.error('listAccountVideos: instagram error', { accountId: id, err: err && (err.response?.data || err.message || String(err)) }); } catch (e) {}
@@ -869,10 +926,11 @@ exports.diagnoseIntegration = async (req, res) => {
         result.checks.ig = { error: e && (e.response?.data || e.message || String(e)) };
       }
 
-      // Insights: day metrics and follower_count
+      // Insights: day metrics and follower_count (expanded)
       try {
-        const dayMetrics = ['reach','profile_views'];
-        const insDayResp = await axios.get(`https://graph.facebook.com/v16.0/${igUserId}/insights`, { params: { metric: dayMetrics.join(','), period: 'day', metric_type: 'total_value', access_token: tokenForPage } });
+        // Use only profile-level metric names accepted by Graph API and avoid mixing time_series metrics
+        const dayMetricsTotalValue = ['reach','profile_views','accounts_engaged','total_interactions'];
+        const insDayResp = await axios.get(`https://graph.facebook.com/v16.0/${igUserId}/insights`, { params: { metric: dayMetricsTotalValue.join(','), period: 'day', metric_type: 'total_value', access_token: tokenForPage } });
         result.checks.insights_day = sanitizeForServerLog(insDayResp.data || {});
       } catch (e) {
         result.checks.insights_day = { error: e && (e.response?.data || e.message || String(e)) };
@@ -882,6 +940,12 @@ exports.diagnoseIntegration = async (req, res) => {
         result.checks.insights_follower = sanitizeForServerLog(insFollower.data || {});
       } catch (e) {
         result.checks.insights_follower = { error: e && (e.response?.data || e.message || String(e)) };
+      }
+      try {
+        const insOnline = await axios.get(`https://graph.facebook.com/v16.0/${igUserId}/insights`, { params: { metric: 'online_followers', period: 'day', metric_type: 'time_series', access_token: tokenForPage } });
+        result.checks.insights_online_followers = sanitizeForServerLog(insOnline.data || {});
+      } catch (e) {
+        result.checks.insights_online_followers = { error: e && (e.response?.data || e.message || String(e)) };
       }
     }
 

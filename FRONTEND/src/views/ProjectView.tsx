@@ -6,6 +6,7 @@ import './ProjectView.css'
 import CreateEventModal from '../components/CreateEventModal'
 import CreateTaskModal from '../components/CreateTaskModal'
 import YoutubeMetrics from '../components/YoutubeMetrics'
+import InstagramMetrics from '../components/InstagramMetrics'
 // Twich component removed — keep placeholder/stub
 // Instagram metrics removed
 import { startYoutubeOAuth, getIntegrationAccounts } from '../services/integrations'
@@ -506,13 +507,25 @@ export default function ProjectView(){
             {!primaryPlatform && (
               <div className="ch-box">
                 <div style={{fontWeight:700}}>Sin plataforma seleccionada</div>
-                <div className="muted">Este proyecto no tiene una plataforma principal configurada. Crea el proyecto seleccionando YouTube o Twich para ver métricas.</div>
+                <div className="muted">Este proyecto no tiene una plataforma principal configurada. Crea el proyecto seleccionando YouTube, Instagram o Twich para ver métricas.</div>
               </div>
             )}
-            {primaryPlatform && !['youtube','tiktok'].includes(primaryPlatform) && (
+            {primaryPlatform && !['youtube','tiktok','instagram'].includes(primaryPlatform) && (
               <div className="ch-box">
                 <div style={{fontWeight:700}}>Plataforma no soportada</div>
                 <div className="muted">La plataforma "{primaryPlatform}" no tiene un componente de métricas estático configurado.</div>
+              </div>
+            )}
+            {primaryPlatform === 'instagram' && (
+              <div>
+                <div className="ch-box" style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <div>
+                    <div style={{fontWeight:700}}>Instagram</div>
+                    <div className="muted">Conexión con la API de Instagram / Facebook Graph para este proyecto</div>
+                  </div>
+                </div>
+                <div style={{height:12}} />
+                <InstagramMetrics mode="static" />
               </div>
             )}
           </div>

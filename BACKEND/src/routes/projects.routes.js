@@ -9,7 +9,7 @@ router.use(authRequired);
 router.post('/', [
   body('name').isString().notEmpty(),
   body('platforms').optional().isArray(),
-  body('platforms.*').optional().isIn(['twitch','youtube']),
+  body('platforms.*').optional().isIn(['twitch','youtube','instagram']),
   body('status').optional().isIn(['not_started','in_progress','completed']),
   body('dueDate').optional().isISO8601(),
 ], validate, createProject);
