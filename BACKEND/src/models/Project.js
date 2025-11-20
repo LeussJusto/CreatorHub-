@@ -18,7 +18,7 @@ const ProjectMemberSchema = new mongoose.Schema({
 const ProjectSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: { type: String },
-  platforms: [{ type: String, enum: ['instagram','tiktok','youtube'] }],
+  platforms: [{ type: String, enum: ['twitch','youtube'] }],
   status: { type: String, enum: ['not_started','in_progress','completed'], default: 'not_started' },
   dueDate: { type: Date },
   members: [ProjectMemberSchema],

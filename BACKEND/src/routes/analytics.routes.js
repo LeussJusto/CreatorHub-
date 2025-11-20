@@ -17,7 +17,7 @@ router.get('/overview/:projectId', async (req, res) => {
 
 router.post('/metrics', [
   body('project').isMongoId(),
-  body('platform').isIn(['instagram', 'tiktok', 'youtube']),
+  body('platform').isIn(['twitch', 'youtube']),
 ], recordMetrics);
 
 // Trigger a metrics fetch from connected integration accounts (e.g. YouTube)
@@ -27,7 +27,7 @@ router.post('/fetch', [
 
 router.get('/metrics/:projectId', [
   param('projectId').isMongoId(),
-  query('platform').optional().isIn(['instagram', 'tiktok', 'youtube']),
+  query('platform').optional().isIn(['twitch', 'youtube']),
   query('from').optional().isISO8601(),
   query('to').optional().isISO8601(),
 ], listMetrics);

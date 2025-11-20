@@ -22,6 +22,48 @@ export async function startYoutubeOAuth(token: string) {
   return data.url as string;
 }
 
+
+
+export async function startTikTokOAuth(token: string) {
+  if (!token) throw new Error('No auth token');
+  const res = await fetch(`${API}/api/integrations/oauth/tiktok/start`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const message = err?.error || err?.message || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+
+  const data = await res.json();
+  if (!data || !data.url) throw new Error('Invalid response from server');
+  return data.url as string;
+}
+export async function startInstagramOAuth(token: string) {
+  if (!token) throw new Error('No auth token');
+  const res = await fetch(`${API}/api/integrations/oauth/instagram/start`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const message = err?.error || err?.message || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+
+  const data = await res.json();
+  if (!data || !data.url) throw new Error('Invalid response from server');
+  return data.url as string;
+}
 export async function getIntegrationAccounts(token: string) {
   if (!token) throw new Error('No auth token');
   const res = await fetch(`${API}/api/integrations/accounts`, {

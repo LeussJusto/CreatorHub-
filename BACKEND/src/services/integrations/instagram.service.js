@@ -1,10 +1,8 @@
-const axios = require('axios');
-
+// Instagram integration removed. If this module is required anywhere, it will throw
+// to prevent accidental usage. The Instagram integration was intentionally removed
+// from the codebase; keep this stub only to make requiring modules fail fast.
 module.exports = {
-  async getBasicProfile(accessToken) {
-    // Placeholder for Instagram Basic Display API
-    const url = `https://graph.instagram.com/me?fields=id,username&access_token=${accessToken}`;
-    const { data } = await axios.get(url);
-    return data;
-  },
+  getBasicProfile() {
+    throw new Error('Instagram integration removed');
+  }
 };

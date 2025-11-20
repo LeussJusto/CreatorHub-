@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './IntegrationNotice.css'
 import { useAuth } from '../context/AuthContext'
-import { startYoutubeOAuth, getIntegrationAccounts } from '../services/integrations'
+import { startYoutubeOAuth, startInstagramOAuth, getIntegrationAccounts } from '../services/integrations'
 
 type Props = {
   platform: string;
@@ -21,9 +21,13 @@ export default function IntegrationNotice({ platform, title, description, ctaTex
       if (!token) throw new Error('No estás autenticado');
       setLoading(true);
       // Only YouTube OAuth is implemented on the backend.
-      if (String(platform || '').toLowerCase() === 'youtube') {
+      const platformKey = String(platform || '').toLowerCase();
+      if (platformKey === 'youtube') {
         const url = await startYoutubeOAuth(token);
         // redirect browser to Google consent page
+        window.location.href = url;
+      } else if (platformKey === 'instagram') {
+        const url = await startInstagramOAuth(token);
         window.location.href = url;
       } else {
         // For other platforms, redirect user to the integrations management page
@@ -76,7 +80,7 @@ export default function IntegrationNotice({ platform, title, description, ctaTex
           <>
             <button className="ch-cta" onClick={onConnect} disabled={loading}>{loading ? 'Redirigiendo…' : (connectedAccount ? `Conectar API de ${platform} con otra cuenta` : (ctaText || `Conectar API de ${platform}`))}</button>
             {connectedAccount && (
-              <div style={{marginTop:8}} className="muted">Conectado actualmente{connectedAccount.metadata?.title ? ` como ${connectedAccount.metadata.title}` : ''}.</div>
+              <div style={{marginTop:8}} className="muted">Conectado actualmente{(connectedAccount.metadata?.username || connectedAccount.metadata?.title) ? ` como ${connectedAccount.metadata?.username || connectedAccount.metadata?.title}` : ''}.</div>
             )}
           </>
         )}

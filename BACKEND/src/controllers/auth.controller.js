@@ -1,6 +1,7 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const { signToken } = require('../middleware/auth');
+const IntegrationAccount = require('../models/IntegrationAccount');
 
 exports.register = async (req, res) => {
   const errors = validationResult(req);
@@ -41,5 +42,20 @@ exports.me = async (req, res) => {
     res.json({ id: user._id, name: user.name, email: user.email });
   } catch (e) {
     res.status(500).json({ error: 'Failed to fetch user' });
+  }
+};
+
+// Logout: revoke integration tokens for the user and clear server-side cached credentials
+exports.logout = async (req, res) => {
+  try {
+    // Nullify access/refresh tokens for all integration accounts for this user
+    await IntegrationAccount.updateMany(
+      { user: req.user.id },
+      { $set: { accessToken: null, refreshToken: null, expiresAt: null } }
+    );
+    return res.json({ ok: true });
+  } catch (e) {
+    console.error('logout error', e && (e.response?.data || e.message || e));
+    return res.status(500).json({ error: 'Failed to logout' });
   }
 };

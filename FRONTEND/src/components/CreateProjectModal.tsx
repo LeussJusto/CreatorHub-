@@ -7,10 +7,10 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'not_started'|'in_progress'|'completed'>('not_started');
   const [dueDate, setDueDate] = useState('');
-  const [selectedPlatform, setSelectedPlatform] = useState<'instagram'|'tiktok'|'youtube'|null>(null);
+  const [selectedPlatform, setSelectedPlatform] = useState<'tiktok'|'youtube'|null>(null);
   const [loading, setLoading] = useState(false);
 
-  const togglePlatform = (k:'instagram'|'tiktok'|'youtube') => {
+  const togglePlatform = (k:'tiktok'|'youtube') => {
     setSelectedPlatform(prev => prev === k ? null : k);
   }
 
@@ -41,7 +41,7 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
         </div>
         <div className="ch-modal-body">
           <label>Nombre del Proyecto</label>
-          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Ej: Campaña TikTok Diciembre" />
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Ej: Campaña Twich Diciembre" />
           <label>Descripción</label>
           <textarea value={description} onChange={e=>setDescription(e.target.value)} placeholder="Describe el objetivo y alcance del proyecto..." />
 
@@ -63,11 +63,8 @@ export default function CreateProjectModal({ onClose, token, onCreated }:{ onClo
           <div style={{marginTop:12}}>
             <label>Plataforma Principal</label>
             <div className="ch-platforms">
-              <label className={selectedPlatform === 'instagram' ? 'active' : ''}>
-                <input type="radio" name="platform" checked={selectedPlatform === 'instagram'} onChange={()=>togglePlatform('instagram')} /> Instagram
-              </label>
               <label className={selectedPlatform === 'tiktok' ? 'active' : ''}>
-                <input type="radio" name="platform" checked={selectedPlatform === 'tiktok'} onChange={()=>togglePlatform('tiktok')} /> TikTok
+                <input type="radio" name="platform" checked={selectedPlatform === 'tiktok'} onChange={()=>togglePlatform('tiktok')} /> Twich
               </label>
               <label className={selectedPlatform === 'youtube' ? 'active' : ''}>
                 <input type="radio" name="platform" checked={selectedPlatform === 'youtube'} onChange={()=>togglePlatform('youtube')} /> YouTube

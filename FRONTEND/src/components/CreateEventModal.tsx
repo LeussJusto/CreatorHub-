@@ -36,7 +36,7 @@ export default function CreateEventModal({ onClose, onCreate }: Props){
         </div>
         <div className="ch-modal-body">
           <label>Título del Evento</label>
-          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Ej: Grabar TikTok - Trends" />
+          <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="Ej: Grabar Twich - Trends" />
 
           <label style={{marginTop:12}}>Descripción</label>
           <textarea value={desc} onChange={e=>setDesc(e.target.value)} placeholder="Detalles del evento..." />

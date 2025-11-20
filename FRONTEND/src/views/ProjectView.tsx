@@ -6,8 +6,8 @@ import './ProjectView.css'
 import CreateEventModal from '../components/CreateEventModal'
 import CreateTaskModal from '../components/CreateTaskModal'
 import YoutubeMetrics from '../components/YoutubeMetrics'
-import TiktokMetrics from '../components/TiktokMetrics'
-import InstagramMetrics from '../components/InstagramMetrics'
+// Twich component removed — keep placeholder/stub
+// Instagram metrics removed
 import { startYoutubeOAuth, getIntegrationAccounts } from '../services/integrations'
 import { Calendar, dateFnsLocalizer, View } from 'react-big-calendar'
 import { format, parse, startOfWeek, getDay, addHours } from 'date-fns'
@@ -496,15 +496,20 @@ export default function ProjectView(){
                 )}
               </div>
             )}
-            {primaryPlatform === 'tiktok' && <TiktokMetrics projectId={projectId} />}
-            {primaryPlatform === 'instagram' && <InstagramMetrics projectId={projectId} />}
+            {primaryPlatform === 'tiktok' && (
+              <div className="ch-box">
+                <div style={{fontWeight:700}}>Twich (integración deshabilitada)</div>
+                <div className="muted">La integración con Twich se ha deshabilitado temporalmente en el frontend.</div>
+              </div>
+            )}
+            {/* Instagram removed */}
             {!primaryPlatform && (
               <div className="ch-box">
                 <div style={{fontWeight:700}}>Sin plataforma seleccionada</div>
-                <div className="muted">Este proyecto no tiene una plataforma principal configurada. Crea el proyecto seleccionando YouTube, TikTok o Instagram para ver métricas.</div>
+                <div className="muted">Este proyecto no tiene una plataforma principal configurada. Crea el proyecto seleccionando YouTube o Twich para ver métricas.</div>
               </div>
             )}
-            {primaryPlatform && !['youtube','tiktok','instagram'].includes(primaryPlatform) && (
+            {primaryPlatform && !['youtube','tiktok'].includes(primaryPlatform) && (
               <div className="ch-box">
                 <div style={{fontWeight:700}}>Plataforma no soportada</div>
                 <div className="muted">La plataforma "{primaryPlatform}" no tiene un componente de métricas estático configurado.</div>

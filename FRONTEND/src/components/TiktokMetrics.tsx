@@ -1,16 +1,10 @@
 import React from 'react'
 
-export default function TiktokMetrics({ projectId }: { projectId?: string }){
+export default function TwichMetrics(){
   return (
     <div className="ch-box">
-      <div className="ch-calendar-header">
-        <div>
-          <h3>Métricas de TikTok</h3>
-          <div className="ch-small">Panel estático</div>
-        </div>
-      </div>
-
-      <div style={{padding:12}} className="muted">Aquí va TikTok (contenido estático por ahora)</div>
+      <div style={{fontWeight:700}}>Twich (deshabilitado)</div>
+      <div className="muted">La integración con Twich ha sido eliminada del frontend temporalmente. Las llamadas al API y los logs también han sido removidos.</div>
     </div>
   )
 }

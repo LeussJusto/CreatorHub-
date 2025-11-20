@@ -4,6 +4,7 @@ import Header from '../components/Header';
 import MetricCard from '../components/MetricCard';
 import ProjectCard from '../components/ProjectCard';
 import IntegrationNotice from '../components/IntegrationNotice';
+import IntegrationMetricsCard from '../components/IntegrationMetricsCard';
 import './Dashboard.css';
 import CreateProjectModal from '../components/CreateProjectModal';
 import { getJson, postJson } from '../services/api';
@@ -29,10 +30,9 @@ export default function DashboardView(){
     return { platform: 'YouTube', value: subs != null ? `${Number(subs).toLocaleString()}` : '—', delta: views != null ? `+${Number(views).toLocaleString()} visualizaciones (30d)` : '', icon: '▶️' };
   };
 
-  const staticMetrics = [
-    { platform: 'Instagram', value: '45.2K', delta: '+1,200 seguidores este mes', icon: '📷' },
-    { platform: 'TikTok', value: '128.5K', delta: '+5,300 seguidores este mes', icon: '🎵' },
-  ];
+  // Twich integration removed from frontend — placeholder shown in UI
+
+  // Twich integration removed — no follower discovery in this view
 
   // projects will be fetched from backend
 
@@ -109,15 +109,15 @@ export default function DashboardView(){
 
       <main className="ch-dashboard-main">
         <section className="ch-metrics">
-          {staticMetrics.map((m) => (
-            <MetricCard key={m.platform} platform={m.platform} value={m.value} delta={m.delta} icon={m.icon} />
-          ))}
+          <MetricCard key="Twich" platform="Twich" value="—" delta="Conecta tu cuenta para ver métricas" icon="🎵" />
           {/* youtube summary shown to the right (outside project) */}
           {(() => {
             const y = getYoutubeSummary();
             const toShow = y ?? { platform: 'YouTube', value: '—', delta: 'Conecta tu cuenta para ver métricas', icon: '▶️' };
             return <MetricCard key={toShow.platform} platform={toShow.platform} value={toShow.value} delta={toShow.delta} icon={toShow.icon} />;
           })()}
+          {/* Instagram placeholder card next to Twich and YouTube */}
+          <MetricCard key="Instagram" platform="Instagram" value="—" delta="Conecta tu cuenta para ver métricas" icon="📸" />
         </section>
 
         <section style={{marginTop:8}}>
@@ -130,20 +130,25 @@ export default function DashboardView(){
             />
 
             <IntegrationNotice
-              platform="TikTok"
-              title="Conectar API de TikTok"
-              description="Conecta TikTok para sincronizar métricas de video y seguidores (próximamente)."
-              ctaText="Conectar API de TikTok"
+              platform="Twich"
+              title="Conectar API de Twich"
+              description="Conecta Twich para sincronizar métricas de video y seguidores (próximamente)."
+              ctaText="Conectar API de Twich"
             />
 
             <IntegrationNotice
               platform="Instagram"
               title="Conectar API de Instagram"
-              description="Conecta Instagram para obtener métricas de publicaciones y engagement (próximamente)."
+              description="Conecta Instagram para obtener métricas de perfil y publicaciones (Business/Creator)."
               ctaText="Conectar API de Instagram"
             />
           </div>
           {/* Removed project selector per request: no filter between integration and projects list */}
+        </section>
+
+        {/* Integration metrics card: shows connection status, basic profile and recent media */}
+        <section>
+          <IntegrationMetricsCard />
         </section>
 
         <section className="ch-projects">

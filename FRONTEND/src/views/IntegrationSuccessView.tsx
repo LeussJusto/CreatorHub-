@@ -39,6 +39,14 @@ export default function IntegrationSuccessView(){
     })();
   }, [token, initialized, navigate]);
 
+  // Console log success for Twich specifically so developer can see result in browser console
+  React.useEffect(() => {
+    if (!initialized) return;
+    if (provider === 'tiktok') {
+      console.log('IntegrationSuccessView: Twich OAuth completed — check connected accounts list or backend logs for token acquisition.');
+    }
+  }, [initialized, provider]);
+
   if (!initialized || loading) return <Loader />;
 
   return (

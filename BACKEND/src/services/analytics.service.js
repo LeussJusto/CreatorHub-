@@ -8,8 +8,7 @@ module.exports = {
       projectId,
       connectedPlatforms: accounts.map(a => a.platform),
       metrics: {
-        instagram: { followers: null, likes: null },
-        tiktok: { followers: null, likes: null },
+        twitch: { followers: null, likes: null },
         youtube: { subscribers: null, views: null },
       },
     };
