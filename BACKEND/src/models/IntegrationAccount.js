@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const IntegrationAccountSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
-  platform: { type: String, enum: ['twitch', 'youtube', 'instagram'], required: true },
+  platform: { type: String, enum: ['twitch', 'youtube', 'instagram', 'tiktok', 'facebook'], required: true },
   accessToken: { type: String, required: true },
   refreshToken: { type: String },
   metadata: { type: Object, default: {} },

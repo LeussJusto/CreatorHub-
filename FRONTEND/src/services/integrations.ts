@@ -64,6 +64,48 @@ export async function startInstagramOAuth(token: string) {
   if (!data || !data.url) throw new Error('Invalid response from server');
   return data.url as string;
 }
+
+export async function startTwitchOAuth(token: string) {
+  if (!token) throw new Error('No auth token');
+  const res = await fetch(`${API}/api/integrations/oauth/twitch/start`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const message = err?.error || err?.message || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+
+  const data = await res.json();
+  if (!data || !data.url) throw new Error('Invalid response from server');
+  return data.url as string;
+}
+
+export async function startFacebookOAuth(token: string) {
+  if (!token) throw new Error('No auth token');
+  const res = await fetch(`${API}/api/integrations/oauth/facebook/start`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/json'
+    }
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    const message = err?.error || err?.message || `HTTP ${res.status}`;
+    throw new Error(message);
+  }
+
+  const data = await res.json();
+  if (!data || !data.url) throw new Error('Invalid response from server');
+  return data.url as string;
+}
 export async function getIntegrationAccounts(token: string) {
   if (!token) throw new Error('No auth token');
   const res = await fetch(`${API}/api/integrations/accounts`, {

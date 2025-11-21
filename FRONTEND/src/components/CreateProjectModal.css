@@ -1,12 +1,262 @@
-.ch-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:50}
-.ch-modal{width:680px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 8px 30px rgba(0,0,0,0.2)}
-.ch-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
-.ch-modal-close{background:transparent;border:0;font-size:20px;cursor:pointer}
-.ch-modal-body label{display:block;font-size:13px;color:#444;margin-top:10px}
-.ch-modal-body input,.ch-modal-body textarea,.ch-modal-body select{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e6e6;margin-top:6px}
-.ch-modal-body textarea{min-height:80px}
-.ch-platforms{display:flex;gap:10px;margin-top:8px}
-.ch-platforms label{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #eee;border-radius:8px;cursor:pointer}
-.ch-platforms label.active{border-color:#a78bfa;background:#fbf8ff}
-.ch-modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
-.ch-modal-footer .ch-primary{background:#7c3aed;color:#fff;padding:8px 14px;border-radius:8px;border:0}
+.ch-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.ch-modal {
+  width: 90%;
+  max-width: 600px;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ch-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  border-bottom: 1px solid #e5e7eb;
+  background: linear-gradient(to bottom, #ffffff 0%, #f9fafb 100%);
+}
+
+.ch-modal-header h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+.ch-modal-close {
+  background: transparent;
+  border: 0;
+  font-size: 28px;
+  cursor: pointer;
+  color: #6b7280;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.ch-modal-close:hover {
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.ch-modal-body {
+  padding: 28px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ch-modal-body label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 20px;
+  margin-bottom: 8px;
+}
+
+.ch-modal-body label:first-child {
+  margin-top: 0;
+}
+
+.ch-modal-body input,
+.ch-modal-body textarea,
+.ch-modal-body select {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 2px solid #e5e7eb;
+  margin-top: 0;
+  font-size: 14px;
+  color: #111827;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.ch-modal-body input:focus,
+.ch-modal-body textarea:focus,
+.ch-modal-body select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.ch-modal-body input::placeholder,
+.ch-modal-body textarea::placeholder {
+  color: #9ca3af;
+}
+
+.ch-modal-body textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.ch-modal-body select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7280' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 40px;
+}
+
+.ch-modal-body > div {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.ch-modal-body > div > div {
+  flex: 1;
+}
+
+.ch-platforms {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.ch-platforms label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+  margin: 0;
+  position: relative;
+}
+
+.ch-platforms label:hover {
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+
+.ch-platforms label.active {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8f0fe 100%);
+  color: #667eea;
+  font-weight: 600;
+}
+
+.ch-platforms label input[type="radio"] {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.ch-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.ch-modal-footer button {
+  padding: 12px 24px;
+  border-radius: 10px;
+  border: 0;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ch-modal-footer button:not(.ch-primary) {
+  background: #ffffff;
+  color: #374151;
+  border: 2px solid #e5e7eb;
+}
+
+.ch-modal-footer button:not(.ch-primary):hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.ch-modal-footer .ch-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.ch-modal-footer .ch-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+}
+
+.ch-modal-footer .ch-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .ch-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .ch-modal-header,
+  .ch-modal-body,
+  .ch-modal-footer {
+    padding: 20px;
+  }
+
+  .ch-modal-body > div {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ch-platforms {
+    grid-template-columns: 1fr;
+  }
+}

@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js"
+    "dev": "nodemon src/server.js",
+    "explore-db": "node explore-db.js",
+    "check-user": "node check-user.js",
+    "analyze": "node analyze-project.js"
   },
   "repository": {
     "type": "git",

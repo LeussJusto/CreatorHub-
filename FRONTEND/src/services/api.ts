@@ -10,7 +10,13 @@ export async function postJson(path: string, body: any, token?: string) {
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw { status: res.status, data };
+  if (!res.ok) {
+    // Si el token es inválido (401), disparar evento para limpiar sesión
+    if (res.status === 401 && token) {
+      window.dispatchEvent(new CustomEvent('auth:token-invalid'));
+    }
+    throw { status: res.status, data };
+  }
   return data;
 }
 
@@ -24,7 +30,13 @@ export async function patchJson(path: string, body: any, token?: string) {
     body: JSON.stringify(body),
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw { status: res.status, data };
+  if (!res.ok) {
+    // Si el token es inválido (401), disparar evento para limpiar sesión
+    if (res.status === 401 && token) {
+      window.dispatchEvent(new CustomEvent('auth:token-invalid'));
+    }
+    throw { status: res.status, data };
+  }
   return data;
 }
 
@@ -36,6 +48,12 @@ export async function getJson(path: string, token?: string) {
     },
   });
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw { status: res.status, data };
+  if (!res.ok) {
+    // Si el token es inválido (401), disparar evento para limpiar sesión
+    if (res.status === 401 && token) {
+      window.dispatchEvent(new CustomEvent('auth:token-invalid'));
+    }
+    throw { status: res.status, data };
+  }
   return data;
 }

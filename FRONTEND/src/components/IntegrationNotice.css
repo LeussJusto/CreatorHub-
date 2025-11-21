@@ -2,16 +2,106 @@
   display:flex;
   justify-content:space-between;
   align-items:center;
-  background: linear-gradient(180deg, #f8fafc, #ffffff);
-  border:1px solid #e6eef8;
-  padding:16px 20px;
-  border-radius:10px;
-  gap:12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  padding: 18px;
+  border-radius: 10px;
+  gap: 16px;
+  transition: all 0.2s ease;
 }
-.ch-integration-left{ display:flex; gap:12px; align-items:center }
-.ch-integration-icon{ width:44px; height:44px; border-radius:8px; background:#eef2ff; display:flex; align-items:center; justify-content:center; font-size:20px }
-.ch-integration-title{ font-weight:700 }
-.ch-integration-desc{ color:#64748b; font-size:13px }
-.ch-integration-cta{ text-align:right }
-.ch-cta{ background:linear-gradient(90deg,#111827,#7b2cff); color:white; padding:8px 12px; border-radius:8px; border:0 }
-.ch-note{ margin-top:6px; color:#64748b; font-size:12px }
+
+.ch-integration:hover {
+  border-color: #d1d5db;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.ch-integration-left{ 
+  display:flex; 
+  gap: 16px; 
+  align-items:center;
+  flex: 1;
+}
+
+.ch-integration-icon{ 
+  width: 48px; 
+  height: 48px; 
+  border-radius: 12px; 
+  background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  font-size: 24px;
+}
+
+.ch-integration-title{ 
+  font-weight: 600;
+  font-size: 16px;
+  color: #111827;
+  margin: 0 0 4px 0;
+}
+
+.ch-integration-desc{ 
+  color: #6b7280; 
+  font-size: 14px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.ch-integration-cta{ 
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.ch-cta{ 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white; 
+  padding: 12px 24px; 
+  border-radius: 10px; 
+  border: 0;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.ch-cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.ch-cta:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ch-note{ 
+  margin-top: 6px; 
+  color: #6b7280; 
+  font-size: 12px;
+}
+
+.muted {
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .ch-integration {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ch-integration-cta {
+    width: 100%;
+    align-items: stretch;
+  }
+
+  .ch-cta {
+    width: 100%;
+  }
+}

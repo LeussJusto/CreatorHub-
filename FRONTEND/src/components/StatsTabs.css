@@ -1,0 +1,74 @@
+.stats-tabs-container {
+  width: 100%;
+}
+
+.stats-tabs-header {
+  display: flex;
+  gap: 8px;
+  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: 32px;
+  padding: 0 4px;
+}
+
+.stats-tab {
+  padding: 12px 20px;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+}
+
+.stats-tab:hover {
+  color: #374151;
+  background: #f9fafb;
+}
+
+.stats-tab.active {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.stats-tab.active::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px 2px 0 0;
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+.stats-tabs-content {
+  width: 100%;
+}
+
+.tab-panel {
+  width: 100%;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+

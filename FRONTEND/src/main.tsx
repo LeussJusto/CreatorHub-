@@ -7,6 +7,8 @@ import { AuthProvider, RequireAuth } from './context/AuthContext'
 import DashboardView from './views/DashboardView'
 import IntegrationSuccessView from './views/IntegrationSuccessView'
 import ProjectView from './views/ProjectView'
+import ProfileView from './views/ProfileView'
+import PlatformStatsView from './views/PlatformStatsView'
 
 const root = createRoot(document.getElementById('root')!)
 root.render(
@@ -16,8 +18,10 @@ root.render(
         <Routes>
           <Route path="/" element={<App />} />
           <Route path="/dashboard" element={<RequireAuth><DashboardView /></RequireAuth>} />
+          <Route path="/profile" element={<RequireAuth><ProfileView /></RequireAuth>} />
           <Route path="/integrations/success" element={<IntegrationSuccessView />} />
           <Route path="/projects/:projectId" element={<RequireAuth><ProjectView /></RequireAuth>} />
+          <Route path="/platforms/:platform/stats" element={<RequireAuth><PlatformStatsView /></RequireAuth>} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

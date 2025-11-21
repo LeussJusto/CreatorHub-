@@ -19,25 +19,102 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<UserDTO | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        setUser(parsed.user || null);
-        setToken(parsed.token || null);
+    const restoreSession = async () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          const savedToken = parsed.token;
+          const savedUser = parsed.user;
+          
+          if (savedToken && savedUser) {
+            console.log('🔄 Restaurando sesión desde localStorage...');
+            // Restaurar sesión inmediatamente desde localStorage
+            setUser(savedUser);
+            setToken(savedToken);
+            
+            // Validar el token con el backend en segundo plano (no bloquea la restauración)
+            try {
+              const userData = await authController.me(savedToken);
+              // Si la validación es exitosa, actualizar con datos del backend
+              if (userData) {
+                setUser(userData);
+                console.log('✅ Token válido, sesión restaurada');
+              }
+            } catch (err: any) {
+              // Solo limpiar si es un error 401 (token inválido)
+              // Si es un error de red u otro error, mantener la sesión
+              if (err?.status === 401) {
+                console.warn('❌ Token inválido (401), limpiando sesión:', err);
+                localStorage.removeItem(STORAGE_KEY);
+                setUser(null);
+                setToken(null);
+              } else {
+                console.warn('⚠️ Error al validar token (no es 401), manteniendo sesión:', err);
+                // Mantener la sesión si no es un error 401
+              }
+            }
+          } else {
+            setUser(savedUser || null);
+            setToken(savedToken || null);
+          }
+        } else {
+          console.log('📭 No hay sesión guardada en localStorage');
+        }
+      } catch (err) {
+        console.error('❌ Error al restaurar sesión:', err);
+        // En caso de error de parsing, limpiar todo
+        try { localStorage.removeItem(STORAGE_KEY); } catch {}
+        setUser(null);
+        setToken(null);
+      } finally {
+        setIsRestoring(false);
+        setInitialized(true);
       }
-    } catch {}
-    setInitialized(true);
+    };
+    
+    restoreSession();
   }, []);
 
   useEffect(() => {
-    const payload = { user, token };
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
-    } catch {}
-  }, [user, token]);
+    // No guardar durante la restauración inicial
+    if (isRestoring) return;
+    
+    // Solo guardar si hay token y user (evitar guardar estado vacío)
+    if (user && token) {
+      const payload = { user, token };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        console.log('💾 Sesión guardada en localStorage');
+      } catch (err) {
+        console.error('❌ Error al guardar en localStorage:', err);
+      }
+    } else if (!user && !token && initialized) {
+      // Si ambos son null y ya se inicializó, limpiar localStorage
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+        console.log('🧹 localStorage limpiado');
+      } catch {}
+    }
+  }, [user, token, isRestoring, initialized]);
+
+  // Listener para errores 401 globales (token inválido)
+  useEffect(() => {
+    const handleTokenInvalid = () => {
+      console.warn('Token inválido detectado, limpiando sesión...');
+      setUser(null);
+      setToken(null);
+      try { localStorage.removeItem(STORAGE_KEY); } catch {}
+    };
+
+    window.addEventListener('auth:token-invalid', handleTokenInvalid);
+    return () => {
+      window.removeEventListener('auth:token-invalid', handleTokenInvalid);
+    };
+  }, []);
 
   const login = async (p: LoginPayload) => {
     const res = await authController.login(p);
@@ -51,7 +128,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(res.token || null);
   };
 
-  const logout = () => {
+  const logout = async () => {
+    // Llamar al backend para hacer logout (revocar tokens de integraciones)
+    if (token) {
+      try {
+        await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:4000'}/api/auth/logout`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          }
+        });
+      } catch (err) {
+        console.warn('Error al hacer logout en backend:', err);
+      }
+    }
     setUser(null);
     setToken(null);
     try { localStorage.removeItem(STORAGE_KEY); } catch {}

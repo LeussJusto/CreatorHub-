@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import './IntegrationNotice.css'
 import { useAuth } from '../context/AuthContext'
-import { startYoutubeOAuth, startInstagramOAuth, getIntegrationAccounts } from '../services/integrations'
+import { startYoutubeOAuth, startInstagramOAuth, startTwitchOAuth, startTikTokOAuth, startFacebookOAuth, getIntegrationAccounts } from '../services/integrations'
 
 type Props = {
   platform: string;
@@ -24,14 +24,20 @@ export default function IntegrationNotice({ platform, title, description, ctaTex
       const platformKey = String(platform || '').toLowerCase();
       if (platformKey === 'youtube') {
         const url = await startYoutubeOAuth(token);
-        // redirect browser to Google consent page
         window.location.href = url;
       } else if (platformKey === 'instagram') {
         const url = await startInstagramOAuth(token);
         window.location.href = url;
+      } else if (platformKey === 'twitch' || platformKey === 'twich') {
+        const url = await startTwitchOAuth(token);
+        window.location.href = url;
+      } else if (platformKey === 'tiktok') {
+        const url = await startTikTokOAuth(token);
+        window.location.href = url;
+      } else if (platformKey === 'facebook') {
+        const url = await startFacebookOAuth(token);
+        window.location.href = url;
       } else {
-        // For other platforms, redirect user to the integrations management page
-        // where we can show instructions or future connect flows.
         window.location.href = '/integrations';
       }
     } catch (err: any) {

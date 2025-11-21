@@ -48,6 +48,7 @@ app.use('/api/tasks', require('./routes/tasks.routes'));
 app.use('/api/analytics', require('./routes/analytics.routes'));
 app.use('/api/integrations', require('./routes/integrations.routes'));
 app.use('/api/notifications', require('./routes/notifications.routes'));
+app.use('/api/ai', require('./routes/ai.routes'));
 
 // Note: removed public/ngrok callback route to keep redirects local only.
 // OAuth callbacks should use the API route under `/api/integrations` (local:4000).
