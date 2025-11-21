@@ -103,34 +103,185 @@ export default function Notifications(){
 
   return (
     <div ref={rootRef} style={{position:'relative', display:'flex', alignItems:'center'}}>
-      <button onClick={() => setOpen(o => !o)} className="ch-btn ch-btn-secondary" aria-expanded={open} aria-label="Notificaciones">🔔</button>
-      {unread > 0 && <div style={{position:'absolute',top:-6,right:-6,background:'#ef4444',color:'#fff',borderRadius:12,padding:'2px 6px',fontSize:12}}>{unread}</div>}
+      <button 
+        onClick={() => setOpen(o => !o)} 
+        className="ch-notification-btn" 
+        aria-expanded={open} 
+        aria-label="Notificaciones"
+        style={{
+          width: '44px',
+          height: '44px',
+          borderRadius: '12px',
+          border: 'none',
+          background: '#f9fafb',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          fontSize: '20px',
+          transition: 'all 0.2s ease',
+          position: 'relative'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#f3f4f6';
+          e.currentTarget.style.transform = 'scale(1.05)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#f9fafb';
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        🔔
+      </button>
+      {unread > 0 && (
+        <div style={{
+          position:'absolute',
+          top:-4,
+          right:-4,
+          background:'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          color:'#fff',
+          borderRadius:'12px',
+          padding:'2px 8px',
+          fontSize:11,
+          fontWeight:700,
+          boxShadow:'0 2px 8px rgba(239, 68, 68, 0.4)',
+          minWidth:'20px',
+          textAlign:'center',
+          lineHeight:'1.4'
+        }}>
+          {unread > 9 ? '9+' : unread}
+        </div>
+      )}
 
       {open && (
-        <div style={{position:'absolute',right:0,top:40,width:360,maxHeight:420,overflow:'auto',borderRadius:8,boxShadow:'0 6px 18px rgba(0,0,0,0.12)',background:'#fff',zIndex:60}}>
-          <div style={{padding:12,borderBottom:'1px solid #f3f3f3',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-            <div style={{fontWeight:700}}>Notificaciones</div>
-            <div style={{fontSize:13,color:'#666'}}>{unread} sin leer</div>
+        <div style={{
+          position:'absolute',
+          right:0,
+          top:52,
+          width:380,
+          maxHeight:480,
+          overflow:'auto',
+          borderRadius:16,
+          boxShadow:'0 10px 30px rgba(0,0,0,0.15)',
+          background:'#fff',
+          zIndex:60,
+          border:'1px solid #e5e7eb',
+          animation:'slideDown 0.2s ease'
+        }}>
+          <div style={{
+            padding:20,
+            borderBottom:'1px solid #e5e7eb',
+            display:'flex',
+            justifyContent:'space-between',
+            alignItems:'center',
+            background:'#f9fafb'
+          }}>
+            <div style={{fontWeight:700, fontSize:16, color:'#111827'}}>Notificaciones</div>
+            {unread > 0 && (
+              <div style={{
+                fontSize:12,
+                color:'#667eea',
+                fontWeight:600,
+                background:'#eef2ff',
+                padding:'4px 12px',
+                borderRadius:12
+              }}>
+                {unread} sin leer
+              </div>
+            )}
           </div>
           <div style={{padding:12}}>
-            {loading ? <div className="muted">Cargando...</div> : (
-              items.length === 0 ? <div className="muted">No hay notificaciones</div> : (
+            {loading ? (
+              <div style={{textAlign:'center', padding:40, color:'#9ca3af', fontSize:14}}>Cargando...</div>
+            ) : (
+              items.length === 0 ? (
+                <div style={{textAlign:'center', padding:40, color:'#9ca3af', fontSize:14}}>No hay notificaciones</div>
+              ) : (
                 <div style={{display:'flex',flexDirection:'column',gap:8}}>
                   {items.map(n => (
-                    <div key={n._id} style={{padding:10,background:n.read? '#fafafa' : '#fffbea',border:'1px solid #f3f3f3',borderRadius:6}}>
-                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                        <div style={{fontWeight:600}}>{n.type === 'project_invite' ? 'Invitación' : n.type}</div>
-                        <div style={{fontSize:12,color:'#666'}}>{new Date(n.createdAt).toLocaleString()}</div>
+                    <div 
+                      key={n._id} 
+                      style={{
+                        padding:16,
+                        background:n.read? '#ffffff' : '#fef3c7',
+                        border:`1px solid ${n.read ? '#e5e7eb' : '#fde68a'}`,
+                        borderRadius:12,
+                        transition:'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.08)';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start', marginBottom:8}}>
+                        <div style={{fontWeight:600, fontSize:14, color:'#111827'}}>
+                          {n.type === 'project_invite' ? '📬 Invitación' : n.type}
+                        </div>
+                        <div style={{fontSize:11,color:'#9ca3af', whiteSpace:'nowrap', marginLeft:12}}>
+                          {new Date(n.createdAt).toLocaleDateString('es-ES', { day:'numeric', month:'short' })}
+                        </div>
                       </div>
-                      <div style={{marginTop:6,fontSize:14}}>{n.data && n.data.projectName ? `Has sido invitado al proyecto: ${n.data.projectName}` : JSON.stringify(n.data)}</div>
-                      <div style={{marginTop:8,display:'flex',gap:8}}>
-                        {!n.read && n.type === 'project_invite' ? (
-                          <button className="ch-btn ch-btn-primary" onClick={()=>acceptInvite(n)}>Aceptar</button>
-                        ) : null}
-                        {!n.read && n.type !== 'project_invite' ? (
-                          <button className="ch-btn ch-btn-primary" onClick={()=>markRead(n._id)}>Marcar como leído</button>
-                        ) : null}
+                      <div style={{marginTop:4,fontSize:13, color:'#374151', lineHeight:'1.5'}}>
+                        {n.data && n.data.projectName ? `Has sido invitado al proyecto: ${n.data.projectName}` : JSON.stringify(n.data)}
                       </div>
+                      {!n.read && (
+                        <div style={{marginTop:12,display:'flex',gap:8}}>
+                          {n.type === 'project_invite' ? (
+                            <button 
+                              onClick={()=>acceptInvite(n)}
+                              style={{
+                                background:'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                color:'#fff',
+                                border:'none',
+                                padding:'8px 16px',
+                                borderRadius:8,
+                                fontSize:13,
+                                fontWeight:600,
+                                cursor:'pointer',
+                                transition:'all 0.2s ease',
+                                boxShadow:'0 2px 8px rgba(102, 126, 234, 0.3)'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(102, 126, 234, 0.4)';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.3)';
+                              }}
+                            >
+                              Aceptar
+                            </button>
+                          ) : (
+                            <button 
+                              onClick={()=>markRead(n._id)}
+                              style={{
+                                background:'#f3f4f6',
+                                color:'#374151',
+                                border:'1px solid #e5e7eb',
+                                padding:'8px 16px',
+                                borderRadius:8,
+                                fontSize:13,
+                                fontWeight:500,
+                                cursor:'pointer',
+                                transition:'all 0.2s ease'
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = '#e5e7eb';
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = '#f3f4f6';
+                              }}
+                            >
+                              Marcar como leído
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -1,20 +1,197 @@
-.ch-header{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:18px 28px;
-  border-bottom:1px solid #eef2f7;
-  background: #fff;
+.ch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 32px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+  position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-.ch-brand{ display:flex; gap:12px; align-items:center }
-.ch-logo{ width:44px; height:44px; background:linear-gradient(90deg,#b55bff,#ff4da6); color:white; display:flex; align-items:center; justify-content:center; border-radius:10px; font-weight:700 }
-.ch-title{ font-weight:700 }
-.ch-sub{ font-size:12px; color:#718096 }
-.ch-user{ display:flex; gap:12px; align-items:center }
-.ch-user-info{ text-align:right }
-.ch-user-name{ font-weight:600 }
-.ch-user-email{ font-size:12px; color:#718096 }
-.ch-user-avatar{ width:40px; height:40px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#f3f4f6 }
-.ch-user-menu{ position:absolute; right:0; top:44px; background:#fff; box-shadow:0 6px 18px rgba(0,0,0,0.12); border-radius:8px; overflow:hidden; min-width:160px; z-index:40 }
-.ch-user-menu-item{ padding:10px 14px; cursor:pointer; font-size:14px }
-.ch-user-menu-item:hover{ background:#f3f4f6 }
+
+.ch-brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.ch-brand:hover {
+  opacity: 0.8;
+}
+
+.ch-logo {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 24px;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.ch-logo:hover {
+  transform: scale(1.05);
+}
+
+.ch-title {
+  font-weight: 700;
+  font-size: 20px;
+  color: #111827;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.ch-sub {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0;
+  font-weight: 400;
+}
+
+.ch-user {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  position: relative;
+}
+
+.ch-user-info {
+  text-align: right;
+  cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background-color 0.2s ease;
+}
+
+.ch-user-info:hover {
+  background: #f9fafb;
+}
+
+.ch-user-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: #111827;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ch-user-email {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.ch-user-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  font-size: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  border: 2px solid #ffffff;
+}
+
+.ch-user-avatar-clickable {
+  cursor: pointer;
+}
+
+.ch-user-avatar-clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.ch-user-menu {
+  position: absolute;
+  right: 0;
+  top: 56px;
+  background: #ffffff;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  border-radius: 12px;
+  overflow: hidden;
+  min-width: 200px;
+  z-index: 1000;
+  border: 1px solid #e5e7eb;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ch-user-menu-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+}
+
+.ch-user-menu-item:hover {
+  background: #f9fafb;
+}
+
+.ch-user-menu-item-danger {
+  color: #dc2626;
+}
+
+.ch-user-menu-item-danger:hover {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.ch-user-menu-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 4px 0;
+}
+
+/* Notifications styling */
+.ch-user > div:first-child {
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .ch-header {
+    padding: 12px 20px;
+  }
+
+  .ch-user-info {
+    display: none;
+  }
+
+  .ch-logo {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+
+  .ch-title {
+    font-size: 18px;
+  }
+
+  .ch-sub {
+    font-size: 11px;
+  }
+}
