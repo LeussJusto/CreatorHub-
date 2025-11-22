@@ -8,6 +8,10 @@ const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { setIO } = require('./utils/realtime');
 const { connectDB } = require('./config/db');
+const { validateEnv } = require('./config/env');
+
+// Validar variables de entorno antes de iniciar
+validateEnv();
 
 const app = express();
 const server = http.createServer(app);

@@ -108,6 +108,14 @@ exports.oauthYoutubeStart = async (req, res) => {
     const userId = req.user && req.user.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
 
+    // Verificar que las credenciales estén configuradas
+    if (!process.env.YT_CLIENT_ID || !process.env.YT_CLIENT_SECRET) {
+      return res.status(500).json({ 
+        error: 'YouTube integration not configured',
+        message: 'Las credenciales de YouTube no están configuradas. Contacta al administrador.'
+      });
+    }
+
     // Create a short-lived signed state containing the user id and a random nonce
     const nonce = crypto.randomBytes(12).toString('hex');
     const stateTtl = process.env.YT_STATE_TTL || '1h';
@@ -132,7 +140,8 @@ exports.oauthYoutubeStart = async (req, res) => {
     }
     return res.redirect(url);
   } catch (e) {
-    return res.status(500).json({ error: 'Failed to start YouTube OAuth' });
+    console.error('Error starting YouTube OAuth:', e);
+    return res.status(500).json({ error: 'Failed to start YouTube OAuth', details: e.message });
   }
 };
 
@@ -219,12 +228,23 @@ exports.oauthInstagramStart = async (req, res) => {
   try {
     const userId = req.user && req.user.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    
+    // Verificar que las credenciales estén configuradas
+    const clientId = process.env.FACEBOOK_APP_ID || process.env.INSTAGRAM_CLIENT_ID || process.env.IG_CLIENT_KEY;
+    const clientSecret = process.env.FACEBOOK_APP_SECRET || process.env.INSTAGRAM_CLIENT_SECRET || process.env.IG_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ 
+        error: 'Instagram integration not configured',
+        message: 'Las credenciales de Instagram/Facebook no están configuradas. Contacta al administrador.'
+      });
+    }
+    
     const nonce = crypto.randomBytes(12).toString('hex');
     const stateTtl = process.env.INSTAGRAM_STATE_TTL || '1h';
     const state = jwt.sign({ sub: userId, nonce }, process.env.JWT_SECRET, { expiresIn: stateTtl });
 
     const redirectUri = process.env.INSTAGRAM_REDIRECT_URI || `${process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`}/api/integrations/oauth/instagram/callback`;
-    const clientId = process.env.FACEBOOK_APP_ID || process.env.INSTAGRAM_CLIENT_ID || process.env.IG_CLIENT_KEY;
     // Use Facebook Login / Graph scopes to access Instagram Business insights/pages
     // Updated: instagram_basic and instagram_manage_insights are deprecated
     // Using only pages permissions to access Instagram Business accounts via Facebook Pages
@@ -414,12 +434,23 @@ exports.oauthTwitchStart = async (req, res) => {
   try {
     const userId = req.user && req.user.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    
+    // Verificar que las credenciales estén configuradas
+    const clientId = process.env.TWICH_CLIENT_KEY;
+    const clientSecret = process.env.TWICH_CLIENT_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ 
+        error: 'Twitch integration not configured',
+        message: 'Las credenciales de Twitch no están configuradas. Contacta al administrador.'
+      });
+    }
+    
     const nonce = crypto.randomBytes(12).toString('hex');
     const stateTtl = process.env.TWICH_STATE_TTL || '1h';
     const state = jwt.sign({ sub: userId, nonce }, process.env.JWT_SECRET, { expiresIn: stateTtl });
 
     const redirectUri = process.env.TWICH_REDIRECT_URI || `${process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`}/api/integrations/oauth/twitch/callback`;
-    const clientId = process.env.TWICH_CLIENT_KEY;
     const scopes = (process.env.TWICH_SCOPES || 'user:read:email').split(/\s+/).join('+');
 
     try { console.log('oauthTwitchStart: using redirectUri', redirectUri, 'scopes=', scopes, 'statePrefix=', String(state).slice(0,10)); } catch (e) {}
@@ -545,17 +576,24 @@ exports.oauthTikTokStart = async (req, res) => {
   try {
     const userId = req.user && req.user.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    
+    // Verificar que las credenciales estén configuradas
+    const clientKey = process.env.TIKTOK_CLIENT_KEY;
+    const clientSecret = process.env.TIKTOK_CLIENT_SECRET;
+    
+    if (!clientKey || !clientSecret) {
+      return res.status(500).json({ 
+        error: 'TikTok integration not configured',
+        message: 'Las credenciales de TikTok no están configuradas. Contacta al administrador.'
+      });
+    }
+    
     const nonce = crypto.randomBytes(12).toString('hex');
     const stateTtl = process.env.TIKTOK_STATE_TTL || '1h';
     const state = jwt.sign({ sub: userId, nonce }, process.env.JWT_SECRET, { expiresIn: stateTtl });
 
     const redirectUri = process.env.TIKTOK_REDIRECT_URI || `${process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`}/api/integrations/oauth/tiktok/callback`;
-    const clientKey = process.env.TIKTOK_CLIENT_KEY;
     const scopes = (process.env.TIKTOK_SCOPES || 'user.info.basic,video.list').split(/\s+/).join(',');
-
-    if (!clientKey) {
-      return res.status(500).json({ error: 'TikTok Client Key not configured' });
-    }
 
     const params = new URLSearchParams({
       client_key: clientKey,
@@ -691,17 +729,24 @@ exports.oauthFacebookStart = async (req, res) => {
   try {
     const userId = req.user && req.user.id;
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
+    
+    // Verificar que las credenciales estén configuradas
+    const clientId = process.env.FACEBOOK_APP_ID;
+    const clientSecret = process.env.FACEBOOK_APP_SECRET;
+    
+    if (!clientId || !clientSecret) {
+      return res.status(500).json({ 
+        error: 'Facebook integration not configured',
+        message: 'Las credenciales de Facebook no están configuradas. Contacta al administrador.'
+      });
+    }
+    
     const nonce = crypto.randomBytes(12).toString('hex');
     const stateTtl = process.env.FACEBOOK_STATE_TTL || '1h';
     const state = jwt.sign({ sub: userId, nonce }, process.env.JWT_SECRET, { expiresIn: stateTtl });
 
     const redirectUri = process.env.FACEBOOK_REDIRECT_URI || `${process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 4000}`}/api/integrations/oauth/facebook/callback`;
-    const clientId = process.env.FACEBOOK_APP_ID;
     const scopes = (process.env.FACEBOOK_SCOPES || 'pages_read_engagement,pages_show_list,pages_read_user_content,public_profile').split(/\s+/).join(',');
-
-    if (!clientId) {
-      return res.status(500).json({ error: 'Facebook App ID not configured' });
-    }
 
     const params = new URLSearchParams({
       client_id: clientId,
